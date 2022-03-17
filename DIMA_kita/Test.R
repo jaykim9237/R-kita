@@ -138,7 +138,7 @@ mpg %>%
 
 qplot(data=mpg, x=displ, y=cty, col=displ)
 
-#월간 소비동향, 월간 저축 동향
+#3-9 월간 소비동향, 월간 저축 동향 ----
 
 economics
 names(economics)
@@ -154,7 +154,7 @@ ggplot(data=economics,
        aes(x=date, y=psavert)) + geom_line()
 
 
-#3-10. 회귀분석(ML: 독립변수 x -> 종속변수 y)
+#3-10. 회귀분석(ML: 독립변수 x -> 종속변수 y) ----
 #머신러닝 기법: 지도학습(정답이 주어짐)
 #원인(x) -> 결과(y, 고속도로 연비 :hwy)
 # y=b0 + b1x1 + b2x2...
@@ -170,11 +170,12 @@ summary(lm.mpg)
 
 View(mpg)
 
-lm.mpg <- lm(data=mpg, hwy~displ + drv + model * trans)
-lm.mpg <- lm(data=mpg, hwy~displ + drv + model * trans + cty)
+lm.mpg2 <- lm(data=mpg, hwy~displ + drv + model * trans)
+lm.mpg3 <- lm(data=mpg, hwy~displ + drv + model * trans + cty)
 
 summary(lm.mpg) # *** 이 세개가 나왔어 의미 있는 변수들이 었다는 것이야
                 # *** 변수들이 가중치 있는거야, 의미 있는 것을 찾아내는 것이 핵심, 돈인거야 
                 # R-squared: 의 값 최대 : 1, 1에 가까울수록 의미 있는 데이터를 뽑아낸 것이댜.
-
+summary(lm.mpg2)
+summary(lm.mpg3)
 
