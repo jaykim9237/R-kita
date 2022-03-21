@@ -264,11 +264,157 @@ pass_mpg <- my_mpg[my_mpg$test == "Pass",]
 
 ans_mpg <- pass_mpg[c("manufacturer","model", "class")]
 
-View(ans_mpg)
+View(my_mpg)
 
 write.csv(ans_mpg, file = "2022ans.csv")
 
 
+plus_mpg <- pass_mpg[c("manufacturer","model", "class", "year", "trans")]
+head(plus_mpg)
+
+#Q2 ----
+
+names(my_mpg)
+
+my_mpg$grade <- ifelse(my_mpg$t_ch >=31,"Excelect",
+                       ifelse(my_mpg$t_ch >=21, "Good",
+                              ifelse(my_mpg$t_ch >=15,"Normal",
+                                     "Poor")))
 
 
+table(my_mpg$grade)
+ggplot2::qplot(my_mpg$grade)
 
+#R&D 퀴즈 ----
+#+ 파일읽기
+#+ 읽어 들인 파일 내용을 공백을 기준으로 split 하기
+#+ 다시 파일로 저장하기
+#+ 저장된 파일을 다시 로딩하기 
+
+getwd()
+
+?readLines
+
+#txt 읽기
+txt2 <- readLines("txt2.txt",  encoding = "UTF-8")
+
+#파일내용을 공백으로 자르기  
+?split
+
+txt2 <- strsplit(txt2, split = ' ')
+txt2
+
+txt3 <- txt2
+
+#선생님 파일저장
+save(txt3, file = "ans_txt3.RData")
+
+#변수삭제
+ls()
+rm(txt3)
+txt3 #메모리에서 변수 
+
+#다시로딩
+load("ans_txt3.RData")
+ls()
+
+txt3
+
+#한승 방법
+unlist_txt2 <- unlist(txt2)
+cat(unlist_txt2, file='nulist_txt2.txt')
+
+#우세한 우리반 방법
+#근데 이거 그냥 콘솔을 캡쳐하는거래
+capture.output(txt2, "\n", file = "new_txt2.txt")
+
+# 내가 하다가 실패
+search()
+install.packages("writexl")
+install.packages("data.table")
+
+#Q3----
+
+my_midwest <- ggplot2::midwest
+View(my_midwest)
+
+class(my_midwest)
+head(my_midwest)
+typeof(my_midwest)
+
+search()
+install.package(dplyr)
+library(dplyr)
+my_midwest <- rename(my_midwest, total_p=poptotal)
+my_midwest <- rename(my_midwest, black_p=popblack)
+
+head(my_midwest)
+
+my_midwest$per1 <- my_midwest$black_p/my_midwest$total_p
+my_midwest$per2 <-  my_midwest$per1*100
+
+View(my_midwest$per2)
+hist(my_midwest$per2)
+
+mean(my_midwest$per2)
+
+my_avg <- mean(my_midwest$per2) #2.68%
+
+my_midwest$quiz_avg <- ifelse(my_midwest$per2 >= my_avg, ">>=avg(2.68%)", "<avg(2.28%)")
+
+table(my_midwest$quiz_avg)
+
+View(my_midwest$quiz_avg)
+ggplot2::qplot(my_midwest$quiz_avg) #그냥 qplot은 안되고 ggplot2::qplot로 찾아줘
+hist(my_midwest$quiz_avg) # x값이 수가 아니어서 안돼
+x11();hist(my_midwest$quiz_avg)
+
+#Q. 중복된 데이터 셋
+
+my_mpg
+
+View(my_mpg)
+
+duplicated(my_mpg)
+class(duplicated(my_mpg))
+mode(duplicated(my_mpg))
+typeof(duplicated(my_mpg))
+
+table(duplicated(my_mpg)) #중복 9개
+
+which(duplicated(my_mpg)) #중복 된 값의 row name
+rownames(my_mpg)
+
+
+my_mpg[c(21 ,41 , 43, 54, 61, 68, 69, 80, 104),] # a[m행 m열]
+my_mpg[which(duplicated(my_mpg)),] #바로위에 인덱스(rowname)를 나열이 아니고 which함수를 넣어서 해준거지
+
+my_mpg[x,] ##
+my_mpg[which(duplicated(my_mpg)),] 
+
+duplicate_raw <- function(ds){
+  d_raw <- ds[which(duplicated(ds)),] 
+  return(d_raw)
+}
+
+duplicate_raw(my_mpg)
+duplicate_raw(my_mpg$test=="pass",)
+
+#test
+a1 <- c(1,1,1,2,2,3);a1
+a2 <- c(1,1,2,2,2,5);a2
+a3 <- c(2,2,4,3,3,7);a3
+
+xx <- data.frame(a1,a2,a3) 
+
+xx
+duplicate_raw(xx)
+
+xx_raw <- duplicate_raw(xx) #함수 안에서의 <-는 임시로 넣고 뿌리는 역할일 뿐, 값을 넣어줘야해
+
+duplicated(xx)
+which(duplicated(xx))
+xx[which(duplicated(xx)),]
+
+
+#########################################
