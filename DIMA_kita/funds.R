@@ -418,3 +418,141 @@ xx[which(duplicated(xx)),]
 
 
 #########################################
+
+#R&D, db connection ----
+
+install.packages("DBI")
+install.packages("rJava")
+install.packages("RJDBC")
+install.packages("odbc")
+
+#package loading
+library(odbc)
+library(DBI)
+library(RJDBC)
+library(rJava)
+search()
+
+#사전 확인
+?odbcListDrivers() #odbc::
+
+ins.drivers <- odbcListDrivers()
+dim(ins.drivers)
+class(ins.drivers)
+names(ins.drivers)
+head(ins.drivers)
+
+ins.drivers[1]
+unique(ins.drivers[1])
+unique(ins.drivers[[1]])
+sort(unique(ins.drivers[[1]]))
+
+unique(ins.drivers$name)
+unique((odbcListDrivers())$name)
+unique((odbcListDrivers())[1])
+unique((odbcListDrivers())[[1]])
+
+class((odbcListDrivers())[1])
+class((odbcListDrivers())[[1]])
+
+#4) library ??
+# library(RJDBC) #해당 DB 드라이버 생성시 필요
+#+ RJDBC::JDBC()
+?JDBC
+?RJDBC::JDBC()
+
+
+#library(rJava) #rJava는 JDBC와 강한 커플링
+#library(DBI) #dbConnect()함수 사용
+#+DBI::dbConnect()
+
+search()
+?dbConnect
+
+#5) db 드라이버 생성(ojdbc8.)
+jdbc_D <- JDBC(driverClass = "oracle.jdbc.OracleDriver",
+      classPath="C:/Database/app/user/product/18.0.0/dbhomeXE/jdbc/lib/ojdbc8.jar")
+
+#6) targetDB connection  생성
+#+터미널에 ipconfig
+#+ip : 10.10.16.29
+
+??dbConnect() #DBI::dbConnect
+
+jdbc_D
+
+dm_con1 <- dbConnect(jdbc_D,"jdbc:oracle:thin:@10.10.16.29:1521:XE", "hr", "hr")
+
+# 내 컴퓨터니까 이거도 가능  
+dm_con2 <- dbConnect(jdbc_D,"jdbc:oracle:thin:@localhost:1521:XE", "hr", "hr")
+
+# 7) Test Query
+??dbGetQuery() #DBI::
+
+#-1
+q1 <- "select tname from tab"
+rs <- dbGetQuery(dm_con1, q1)
+head(rs)
+
+#-2
+q2 <- "select job_id, job_title from jobs"
+rs2 <- dbGetQuery(dm_con1, q2)
+head(rs2,10)
+
+#team Q ----
+
+
+# 1) 우리회사의 각 부서별 인원 정보는?
+
+a1 <- "select d.department_name, count(*)
+from departments d, employees e 
+where d.department_id = e.department_id 
+group by d.department_name"
+
+answer01 <- dbGetQuery(dm_con1, a1)
+View(answer01)
+
+# 2) 우리회사의 각 부서별 인원정보와 연도별 입사인원은?
+
+a2 <- "select dn, count(year), year from (select d.department_name as dn, count(*),TO_CHAR(e.HIRE_DATE, 'YYYY') as year
+from departments d, employees e 
+where d.department_id = e.department_id 
+group by d.department_name,e.HIRE_DATE)
+group by dn, year"
+
+answer02 <- dbGetQuery(dm_con1, a2)
+View(answer02)
+
+
+# 나는 plus 진짜 모르겠다...
+
+m1 <- "select department_id, count(*)
+            from(select department_id, count(*), to_char(hire_date,'yyyy')
+            from employees
+            where to_char(hire_date,'yyyy') = '2002'
+            group by department_id, hire_date)
+            group by department_id"
+m2 <- "select department_id, count(*)
+            from(select department_id, count(*), to_char(hire_date,'yyyy')
+            from employees
+            where to_char(hire_date,'yyyy') = '2004'
+            group by department_id, hire_date)
+            group by department_id"
+m3 <- "select department_id, count(*)
+            from(select department_id, count(*), to_char(hire_date,'yyyy')
+            from employees
+            where to_char(hire_date,'yyyy') = '2006'
+            group by department_id, hire_date)
+            group by department_id"
+
+mm1  <- dbGetQuery(dm_con1, m1)
+mm2  <- dbGetQuery(dm_con1, m2)
+mm3  <- dbGetQuery(dm_con1, m3)
+
+View(mm1)
+View(mm2)
+View(mm3)
+
+my_ans <- c(mm1, mm2, mm3)
+View(my_ans)
+ggplot2::ggplot(my_ans)
