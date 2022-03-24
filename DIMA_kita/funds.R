@@ -285,7 +285,7 @@ my_mpg$grade <- ifelse(my_mpg$t_ch >=31,"Excelect",
 table(my_mpg$grade)
 ggplot2::qplot(my_mpg$grade)
 
-#R&D 퀴즈 ----
+#Q3 R&D 퀴즈 ----
 #+ 파일읽기
 #+ 읽어 들인 파일 내용을 공백을 기준으로 split 하기
 #+ 다시 파일로 저장하기
@@ -369,7 +369,7 @@ ggplot2::qplot(my_midwest$quiz_avg) #그냥 qplot은 안되고 ggplot2::qplot로
 hist(my_midwest$quiz_avg) # x값이 수가 아니어서 안돼
 x11();hist(my_midwest$quiz_avg)
 
-#Q. 중복된 데이터 셋
+#Q. 중복된 데이터 셋 ----
 
 my_mpg
 
@@ -419,7 +419,7 @@ xx[which(duplicated(xx)),]
 
 #########################################
 
-#R&D, db connection ----
+#4-4 R&D, db connection ----
 
 install.packages("DBI")
 install.packages("rJava")
@@ -499,7 +499,7 @@ q2 <- "select job_id, job_title from jobs"
 rs2 <- dbGetQuery(dm_con1, q2)
 head(rs2,10)
 
-#team Q ----
+#DB connection R&D team Q ----
 
 
 # 1) 우리회사의 각 부서별 인원 정보는?
@@ -556,3 +556,347 @@ View(mm3)
 my_ans <- c(mm1, mm2, mm3)
 View(my_ans)
 ggplot2::ggplot(my_ans)
+
+
+#5. 데이터 처리 패키지 ----
+#+ dplyr
+#+ %>% : ctrl + shift + m
+
+library(dplyr)
+search()
+
+my_exam <- read.csv("ss_exam.csv")
+
+#5-1.filter() ----
+
+#5-1-1. class == 6 인 경우
+names(my_exam)
+my_exam %>%filter(class == 6)
+my_exam[my_exam$class == 6,] # dplyr 사용을 안한다면? 내장 함수를 사용하는거지 머
+
+
+#5-1-2. class가 2와 3이 아닌 경우
+my_exam %>% filter(class != 2 & class !=3)
+
+#5-1-3. java가 80점 이상이면서 class가 3인 경우
+my_exam %>% filter(java >80 & class ==3)
+
+#5-1-4. java 또는 eng가 80점 이상이면서 class가 5인 경우
+my_exam %>% filter((java | eng >80) & class == 5)
+
+#5-1-5. class가 1,3,5 인 경우
+my_exam %>% filter(class == 5 | class == 3 | class == 1)
+my_exam %>% filter(class %in% c(1,3,5))
+#위에 두개 다 같은 방식 !
+
+#5-2. select() ----
+
+# 5-2-1. id와 database출력
+my_exam %>% select(id, database) %>% head(3)
+
+# 5-2-2. eng만출력
+my_exam %>% select(1:4) %>% head
+my_exam %>% select(-eng) %>% head
+
+# 5-2-3. class가 2인 학생들의 java와 database 성적확인
+my_exam %>% filter(class == 2) %>% select(class, java, database)
+
+my_exam %>% select(class, java, database) %>% filter(class==2)
+
+#Q4 ----
+#4-1. [배기량별 고속도로 연비] displ이 5~6인 자동차의 hwy의 평균
+?mpg
+View(my_mpg)
+my_mpg$displ
+head(my_mpg$displ)
+
+my_mpg %>% filter(5 < my_mpg$displ & my_mpg$displ < 6) ->t_mpg
+View(t_mpg)
+
+mean(t_mpg$hwy)
+
+
+#4-1. 선생님 풀이 첫번째는 가독성이 좋지
+sort(unique(my_mpg$displ), decreasing = T)
+
+aaa <- my_mpg %>% select(1:3,9) %>% filter(between(displ, 5, 6))
+
+View(aaa)
+
+aaa$hwy
+mean(aaa$hwy)
+
+#
+names(my_mpg %>% 
+        select(1:3,9) %>% 
+        filter(between(displ,5,6)))
+
+
+mean((my_mpg %>% 
+        select(1:3,9) %>% 
+        filter(between(displ,5,6)))$hwy)
+
+#4-2. [제조사별 도시연비] 현대와 링컨 제조사의 도시연비 평균비용
+my_mpg %>% filter(my_mpg$manufacturer == "hyundai" |my_mpg$manufacturer ==  "lincoln") -> mean_q
+
+mean(mean_q$cty)
+
+
+#선생님 답
+
+mean((my_mpg %>% select(1:3,8) %>% filter(manufacturer %in% c("hyundai","lincoln")))$cty)
+
+
+mean((my_mpg %>% 
+        select(1:3,8) %>% 
+        filter(manufacturer %in% c("hyundai","lincoln")))$cty)
+
+
+
+#4-3. [제조사별 고속도로 연비] jeep, lond rover, dodge 제조사
+my_mpg
+my_mpg %>% filter(my_mpg$manufacturer == c("land rover", "jeep", "dodge")) -> q3_mpg
+View(q3_mpg)
+#내가 ==라고 해서 틀린건데 ==가 아니고 %in%이어야 하네, 뭐가 다르지 또는의 의미가 없어서면 ==는 뭐지
+
+
+#4-3-1 전체 hwy평균
+mean(q3_mpg$hwy)
+
+.#선생닌ㅁ
+mean((my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")))$hwy)
+
+View(my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")))
+View(my_mpg %>%  filter(manufacturer %in% c("land rover", "jeep", "dodge")))
+
+my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")) %>% summarise(mean(hwy)) 
+##
+mean((my_mpg %>% 
+        select(1:3,9) %>% 
+        filter(manufacturer %in% c("jeep",
+                                   "land rover",
+                                   "dodge")))$hwy)
+
+
+##or group_by(), summarise() 사용
+my_mpg %>% 
+select(1:3, 9) %>% 
+  filter(manufacturer %in% c("jeep",
+                             "land rover",
+                             "dodge")) %>% 
+  summarise(mean(hwy))       # *
+
+                  
+#4-3-2 제조사별 hwy평균 (group_by, summarise 활용용)
+
+my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")) %>% group_by(manufacturer) %>% summarise(mean(hwy)) 
+
+##
+my_mpg %>% 
+  select(1:3, 9) %>% 
+  filter(manufacturer %in% c("jeep",
+                             "land rover",
+                             "dodge")) %>% 
+  group_by(manufacturer) %>%    # 제조사별로 grouping
+  summarise(mean(hwy))    # grouping function 영역
+
+# Q5 ----
+# 5-1 mpg dataset의 하기 변수만 복사하여 new dataset을 생성하시오
+#+ manufacturer, class, cty
+
+names(ggplot2::mpg)
+search()
+q5_mpg <- ggplot2::mpg %>% select(manufacturer, class, cty)
+
+names(q5_mpg)
+
+# 5-2. 1번 dataset에서 clas간의 평균 cty를 추출하시오.
+#+ 비교대상 class : pickup,suv
+
+#pickup + suv
+mean((q5_mpg %>%
+  filter(class %in% c("picup", "suv")) %>%
+  select(cty))$cty)
+                    
+#distinct(manufacturer)
+
+# pickup,suv 그룹별로
+q5_mpg %>%
+  filter(class %in% c("picup", "suv")) %>%
+  select(class) %>%
+  summarise(mean(q5_mpg$cty))
+
+# 5-3. arrange()----
+my_exam
+
+my_exam <- read.csv("ss_exam.csv")
+
+# 5-3-1. class와 eng로 정렬 (오름)
+
+my_exam %>%
+  arrange(class, eng)
+
+# 5-3-2. classs 내림차순, eng 오름차순
+
+my_exam %>%
+  arrange(-class, eng) #class 내림차순, eng 올림차순
+
+my_exam %>% 
+  select(class, eng) %>%
+  arrange(-class, eng) %>% head(5)
+
+#Q6 ----
+
+#1. 현대 차량 중에, hwy가 높은 순으로 출력
+my_mpg
+my_mpg %>% 
+  filter(manufacturer == "hyundai") %>%
+  arrange(-hwy)
+
+#2. 현대 차량중에 hwy가 높은 순서에 해당하는 자동차 정보를 3위까지 출력하세요.
+
+my_mpg %>% 
+  filter(manufacturer == "hyundai") %>%
+  arrange(desc(hwy)) %>% head(3)
+
+# 5-4. mutate() ** ----
+#기본적으로 데이터 프레임 자료형에 새로운 파생 column을 만드는 함수
+#+ a[조건식, 열이름]와 비교해서 장점
+#+ 1) 컬럼을 지칭할 떄 dataset 정보x 
+#+ 2) 한번에 여러개의 변수 추가 가능 
+#+ 3) 조건 파생변수 추가 가능 
+#+ 4) 생성한 파생변수를 명령문이 끝나기 전 바로 사용가능 *
+
+# 5-4-1. package & dataset
+library(dplyr)
+
+my_exam <- read.csv("ss_exam.csv")
+my_exam
+
+# 5-4-2. total 파생변수 
+names(my_exam)
+
+my_exam2 <-my_exam %>% mutate(total= database + java + japan + eng) #오타
+
+head(my_exam,2)
+head(my_exam2,2)
+dim(my_exam2)
+
+# 5-4-3. avg(평균) 파생변수
+
+my_exam2 %>%
+  mutate(total=database+java+japan+eng, 
+         avg=total/4)
+
+my_exam3 <- my_exam %>%
+  mutate(total=database+java+japan+eng, 
+         avg=total/4)
+
+head(my_exam3,2)
+dim(my_exam3)
+
+#5-4-4.result 조건 파생변수 
+
+table((my_exam %>%
+  mutate(total=database+java+japan+eng, 
+         avg=total/4, result = ifelse(avg>=70, "PASS", "FAIL")))$result)
+
+my_exam4 <- my_exam %>%
+  mutate(total=database+java+japan+eng, 
+         avg=total/4, result = ifelse(avg>=70, "PASS", "FAIL"))
+
+
+
+head(my_exam,3)
+head(my_exam2,3)
+head(my_exam3,3)
+head(my_exam4,3)
+
+#Q7----
+# ggplot2::mpg를 활용하여 아래 내용을 도출하세요. (dplyr, ggplot2 패키지 활용) #cty, #hwy
+
+#1) mpg dataset의 복사본을 생성하여 합산연비 - 파생변수 (total = cty + hwy)를 추가하세요
+
+my_q7 <- my_mpg %>%
+  mutate(total=cty + hwy)
+
+View(my_q7)
+
+#2) 편균연배 파생변수(avg = total/2)를 추가하세요
+my_q7 <- my_q7 %>%
+  mutate(avg = total/2)
+
+View(my_q7)
+
+
+#3) 평균 연비가 가장 높은 자동차 3종을 출력하세요
+
+my_q7 %>% select(manufacturer, model, class, displ,  year, drv, avg) %>% arrange(-avg) %>% head(3)
+
+
+
+#4) 위의 요구사항을 1문장의 r구문으로 프로그래밍 하세요 
+mpg %>% mutate(total = cty + hwy, avg = total/2)%>% 
+  select(manufacturer,model,class,displ,year,drv,total,avg) %>% 
+  arrange(-avg) %>% 
+  head(3)
+
+#5-5. group by(), summarise(그룹함수*n개) ----
+
+#5-5-1.
+search()
+library(dplyr)
+my_exam <- read.csv("ss_exam.csv")
+
+names(my_exam)
+
+my_exam %>% count()
+my_exam %>% count(id)
+my_exam %>% count(java)
+my_exam %>% count(class)
+
+
+my_exam %>% 
+  group_by(class) %>% 
+  summarise(n=n())
+
+# 5-5-2. 표준편차, 왜도
+
+library(fBasics)
+
+sd_my_ex <- my_exam %>% 
+  summarise(sd(database),
+            sd(java),
+            sd(japan),
+            sd(eng)
+            )
+
+sd_my_ex
+
+my_exam %>% summarise(skewness(database),
+                      skewness(java),
+                      skewness(japan),
+                      skewness(eng))
+
+#Q. 위 값을 증명할 수 있는 plot을 그려주세요
+
+sk_ex <- my_exam %>% summarise(skewness(database),
+                        skewness(java),
+                        skewness(japan),
+                        skewness(eng))
+
+sk_ex <- round(sx_ex,3)
+
+x11();par(mfrow=c(2,2))
+plot(density(my_exam$database), main=paste("db_sk", sk_ex[1])) #추정치
+plot(density(my_exam$java), main=paste("jv_sk", sk_ex[2]))
+plot(density(my_exam$japan), main=paste("jp_sk", sk_ex[3]))
+plot(density(my_exam$eng), main=paste("eng_sk", sk_ex[4]))
+
+#Q 반별로 dataset선적에 대한 group 함수 
+#+ min, max, median, mean, var, sd, q1, q3, sj, kt, n
+
+min(sk_ex)
+max(sk_ex)
+median(sk_ex)
+mean(sk_ex)
