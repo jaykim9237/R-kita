@@ -1,4 +1,4 @@
-# 4. data.frame ----
+ggggggg# 4. data.frame ----
 
 #4-1. data.frame 생성 ----
 
