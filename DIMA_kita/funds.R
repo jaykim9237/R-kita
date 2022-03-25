@@ -896,7 +896,18 @@ plot(density(my_exam$eng), main=paste("eng_sk", sk_ex[4]))
 #Q 반별로 dataset선적에 대한 group 함수 
 #+ min, max, median, mean, var, sd, q1, q3, sj, kt, n
 
-min(sk_ex)
-max(sk_ex)
-median(sk_ex)
-mean(sk_ex)
+my_exam %>% 
+  group_by(class) %>% 
+  summarise(min_db=min(database),
+            max_db=max(database),
+            median_db=median(database),
+            mean_db=mean(database),
+            var_db=var(database),
+            sd_db=sd(database),
+            q1_db=quantile(database, probs=0.25),
+            q3_db=quantile(database, probs=0.75),
+            sk_db=skewness(database),
+            kt_db=kurtosis(database),
+            n=n())
+
+#
