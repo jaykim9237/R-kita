@@ -910,4 +910,105 @@ my_exam %>%
             kt_db=kurtosis(database),
             n=n())
 
-#
+#Q8.----
+#1. 각 제조사별, 구동방식별 평균-고속도로연비, 평균-도심연비, 차종대수를 조회하세요 
+search()
+my_emp <- my_mpg
+dim(my_emp)
+names(my_emp)
+
+my_mpg %>% 
+  select(1,7,8,9) %>% 
+  group_by(manufacturer, drv) %>% 
+  summarise(m_cty=mean(cty)
+            , m_hwy=mean(hwy)
+            , n=n())
+
+
+#my_exam %>% count(class) 와 같다 현정님 이거요
+my_exam %>% 
+  group_by(class) %>% summarise(n=n()) 
+
+
+#2. 한개 과목이 80점 이상인 인원 중 각 class별 java 평균을 출력하세요.
+
+names(my_exam)
+my_exam <- read.csv("ss_exam.csv")
+View(my_exam)
+
+library(dplyr)
+
+my_exam %>%
+  filter(database >= 80 |java >= 80 | japan>= 80 | 
+           eng >= 80) %>% 
+  group_by(class) %>%
+  summarise(m_java=mean(java))
+            
+
+#3. class가 2,4,5인 경우의 과목별 평균을 출력하세요
+
+my_exam %>%
+  filter(class %in% c(2,4,5)) %>% 
+  group_by(class) %>%
+  summarise(m_db=mean(database)
+            , m_java=mean(java)
+            , m_jp=mean(japan)
+            , m_eng=mean(eng)) %>% arrange(-m_eng)
+
+#Q9 ----
+#1. mpg의 차종별(class) 도심연비(cty)의 평균을 구해보세요
+my_mpg %>% 
+  group_by(class) %>% 
+  summarise(m_cty=mean(cty))
+
+#2. 1의 결과를 이용하여 차종별 평균도심연비, 최대연비, 최소연비를 조회하고
+#+각 컬럼기준으로 정렬하여 연비기준으로 볼 때 어떤 차종을 선책하는 것이 보다 유리한지 확인하세요 
+my_mpg %>% 
+  group_by(class) %>% 
+  summarise(m_cty=mean(cty)
+            , max_c=max(cty)
+            , mean(cty)) %>% 
+  arrange(m_cty)
+
+
+#3. 어떤 자동차 회사의 평균 고속도로 연비가 가장 높은지 확인하시고, 평균 hwy가 가장 높은 회사 5곳을 출력하세요
+
+names(my_mpg)
+
+my_mpg %>% 
+  group_by(manufacturer) %>% 
+  summarise(m_hwy=mean(hwy)) %>% 
+  arrange(-m_hwy) %>% 
+  head(5)
+
+#4. suv 차종을 가장 많이 생산하는 제조사 3곳을 출력하세요
+
+my_mpg %>% 
+  dplyr::filter(class == "suv") %>% 
+  group_by(manufacturer) %>% 
+  summarise(cn=n()) %>% 
+  arrange(-cn) %>% 
+  head(3)
+
+#5. suv를 생산하는 제조사 중에서 평균도심연비가 가장 좋은 모델 5개를 출력하세요 
+
+
+my_mpg %>% 
+  dplyr::filter(class == "suv") %>% 
+  group_by(manufacturer, model) %>% 
+  summarise(m_cty=mean(cty)) %>% 
+  arrange(-m_cty) %>% 
+  head(3)
+
+#5-6. bind_row() ----
+
+#dataset
+
+ga <-data.frame(id=seq(10,50, by=10),
+                python=c(45,100, 56, 91, 83));ga
+gb <-data.frame(id=seq(60,100, by=10),
+                python=c(58, 82, 72, 78, 67));gb
+
+# bind_row()
+bind_rows(ga, gb)
+g_all <- bind_rows(ga, gb);g_all
