@@ -1012,3 +1012,155 @@ gb <-data.frame(id=seq(60,100, by=10),
 # bind_row()
 bind_rows(ga, gb)
 g_all <- bind_rows(ga, gb);g_all
+
+# 5-7. left_join() ----
+
+# dataset
+
+t1 <- data.frame(id=c(1,2,3,4,5),
+                 java=c(100,45,60,84,78));t1
+
+t2 <- data.frame(id=c(1,2,3,4,5),
+                 python=c(77,59,91,51,70));t2
+
+# left_join
+
+left_join(t1,t2,by="id")
+t12 <- left_join(t1,t2,by="id");t12
+t12
+
+# 5-7-2. ----
+
+my_exam <-read.csv("ss_exam.csv")
+unique(my_exam$class)
+data.frame(team=c(1:6),
+           manager=c("dol","when","sohwi","min","won","sin2"))
+admin <-data.frame(team=c(1:6),
+                   manager=c("dol","when","sohwi","min","won","sin2"))
+admin
+
+# my_exam, admin
+
+names(my_exam);head(my_exam,3)
+names(admin);head(admin,3)
+
+left_join(admin,my_exam, by=)
+
+head(left_join(admin, my_exam, by=c("team"="class")),3)
+head(left_join(my_axam,admin, by=c("class"="team")),3)
+
+my_class <-left_join(my_exam, admin, by=c("class"="team"))
+head(my_class,10)
+
+
+
+#Q10 ----
+#1. 객체를 생성하세요. #my_mpg, f_cost(연료정보_new)
+
+
+f_cost <- data.frame(f = c("c","d","e","p","r"),
+                     cost_f = c(2.35, 2.38, 2.11, 2.76, 2.22),
+                     stringsAsFactors = F)
+str(f_cost)
+
+
+#2. left_join을 활용하여 my_mpg 객체에 cost_f 변수를 추가하세요
+
+names(my_mpg)
+names(f_cost)
+
+unique(my_mpg$f1)
+
+head(left_join(f_cost, my_mpg, by=c("f"="f1")),3)
+left_join(f_cost, my_mpg, by=c("f"="f1"))
+my_mpg2 <-ledt_join(f_cost, my_mpg, by=c("f"="f1"))
+names(my_mpg2)
+
+
+#3. left_join()가 제대로 적용되엇는지 확인하기 위해서 다음병구를 10해 조회하세요
+# model, class, cost_f
+
+library(dplyr)
+names(my_mpg2)
+my_mpg2 %>% 
+  select(model, class, cost_f) %>% 
+  arrange(-cost_f) %>% 
+  head(10)
+
+
+# R버전 4.1 이상에서 파이프 |> (nagative pipe 연산자)
+search()
+detach("package:dplyr")
+my_mpg2[c("model", "class", "cost_f")] |> head(3) #dplyr(x)
+
+library(dplyr)
+my_mpg2[c("model", "class", "cost_f")] %>%  head(3)
+
+# 기타 참고
+
+
+summarise(my_mpg, max_h = max(hwy))
+
+group_by(my_mpg, manufacturer) %>% 
+  summarise(min_h = min(hwy))
+
+# 표본 추출(=sample) # 머신러닝 자주 사용 
+
+
+
+
+
+my_mpg <- ggplot2::mpg
+table(my_mpg$fl)
+f <- c("c","d","e","p","r")
+puel <- c("CNG","Diesel","Ethanol E85","Premium","Regular")
+gallon <- c(2.35,2.38,2.11,2.76,2.22)
+
+f_cost <- data.frame(f,puel,gallon)
+
+my_mpg2 <- left_join(my_mpg,f_cost,by=c("fl"="f"))
+View(my_mpg2)
+
+my_mpg2 %>% select(model,class,fl,puel,gallon)
+head(my_mpg2,10)
+
+
+# 표본 추출(=sample) # 머신러닝 자주 사용 
+
+?sample_n #dplyr::
+#+ sample(dataset, n개) #n개 만큼 랜덤샘플 추출
+
+sample_n(my_mpg,5)
+
+set.seed(1234);sample_n(my_mpg,5)
+
+?sample_frac #dplyr::
+#+ sample(dataset, n비율) #n비율 만큼 랜덤샘플 추출 * 
+
+sample_frac(my_mpg,0,01)
+
+set.seed(234); sample_frac(my_mpg,0,01)
+
+#VQ6. -----
+
+#1. 구동방식별(drv) 평균 -hwy
+install.packages("ggplot2")
+library(ggplot2)
+
+df_mpg <- my_mpg %>% 
+  group_by(drv) %>% 
+  summarise(m_hwy=mean(hwy))
+df_mpg
+
+# 2) 막대그래프 
+#+ x: drv, y: m_hwy 
+
+library(ggplot2)
+search()
+ggplot2::ggplot(data=df_mpg, aes(x=drv, y=m_hwy))+geom_col() 
+
+# 
+ggplot(data=df_mpg, aes(x=reorder(drv, -m_hwy), y=m_hwy))+geom_col()
+
+nrow(mtcars)
+str(mtcars)
