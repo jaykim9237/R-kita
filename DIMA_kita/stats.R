@@ -267,3 +267,244 @@ paste(round((o.trim - t5.mean),2), "오차(5%)")
 paste(round((o.trim - t10.mean),2), "오차(10%)")
 
 
+
+
+
+
+###############03.28 (월)
+
+
+#Q4. ss_exam을 활용하여 그래프를 그리세요
+head(my_exam)
+
+search()
+install.packages("psych")
+library(psych)
+# 1. 모든 과목에 대한 표준편차, 분산 + 산점도
+# 내가한거
+sd(my_exam$database)   # 표준편차
+sd(my_exam$java)   # 표준편차
+sd(my_exam$japan)   # 표준편차
+sd(my_exam$eng)   # 표준편차
+
+var(my_exam$database)  # 분산
+var(my_exam$java)  # 분산
+var(my_exam$japan)  # 분산
+var(my_exam$eng)  # 분산
+
+par(mfrow=c(2,2))
+plot(my_exam$java, type="p", main="database")
+plot(my_exam$java, type="p", main="java")
+plot(my_exam$japan, type="p", main="japan")
+plot(my_exam$eng, type="p", main="eng")
+
+# 2. 모든 과목에 대한 왜도 첨도 + 분포도
+
+#왜도 내가 한거
+skewness(my_exam$java)
+skewness(my_exam$japan)
+skewness(my_exam$eng)
+
+#첨도 내가 한거
+kurtosi(my_exam$class)
+
+#분포도 내가 한거
+plot(density(my_exam$java), main="density_java") #밀도 (빈도) 함수
+plot(density(my_exam$japan), main="density_japan") #밀도 (빈도) 함수
+plot(density(my_exam$eng), main="density_eng") #밀도 (빈도) 함수
+
+#선생님 답안
+
+#분산 var
+
+v_ex <- my_exam %>% 
+  select(everything()) %>% 
+  summarise(v_db=var(database),
+            v_jv=var(java),
+            v_jp=var(japan),
+            v_eg=var(eng))
+
+v_ex <- round(sd_ex, 3)
+v_ex
+
+#표준편차 sd
+sd_ex <- my_exam %>% 
+  select(everything()) %>% 
+  summarise(sd_db=sd(database),
+            sd_jv=sd(java),
+            sd_jp=sd(japan),
+            sd_eg=sd(eng))
+
+sd_ex <- round(sd_ex, 3)
+
+sd_ex
+
+#산점도
+names(my_exam)
+View(my_exam)
+
+x11()
+par(mar=c(1,1,1,1))
+par(mfrow=c(2,2))
+
+#점심시간 이전
+plot(my_exam$database, main=paste("db_sd:",sd_ex[1], "db_var:",v_ex[1]), col="red")
+plot(my_exam$java, main=paste("java_sd:",sd_ex[2], "java_var:",v_ex[2]), col="blue")
+plot(my_exam$japan, main=paste("japan_sd:",sd_ex[3], "japan_var:",v_ex[3]), col="red")
+plot(my_exam$eng, main=paste("eng_sd:",sd_ex[4], "eng_var:",v_ex[4]), col="blue")
+
+#점심시간 이후
+name(my_exam)
+
+x11()
+par(mar=c(1,1,1,1))
+par(mfrow=c(2,2))
+plot(my_exam$database, col="darkred", pch=1, cex=1, xlab="DATABASE", 
+     main=paste("db_sd:",sd_ex[1], "db_var:",v_ex[1]))
+points(15,mean(my_exam$database),cex=3)
+
+plot(my_exam$java, col="red", pch=3, cex=2, xlab="JAVA", 
+     main=paste("jv_sd:",sd_ex[2], "jv_var:",v_ex[2]))
+points(15,mean(my_exam$java),cex=3)
+
+plot(my_exam$java, col="blue", pch=4, cex=2, xlab="JAPAN", 
+     main=paste("jv_jp:",sd_ex[3], "jp_var:",v_ex[3]))
+points(15,mean(my_exam$japan),cex=3)
+
+plot(my_exam$eng, col="blue", pch=5, cex=2, xlab="ENG", 
+     main=paste("jv_e:",sd_ex[4], "e_var:",v_ex[4]))
+points(15,mean(my_exam$eng),cex=3)
+
+
+
+#분포도
+
+library(fBasics)
+
+sk_ex <- my_exam %>% 
+  select(everything()) %>% 
+  summarise(sk_db=skewness(database),
+            sk_java=skewness(java),
+            sk_japan=skewness(japan),
+            sk_eng=skewness(eng)
+  )
+
+sk_ex <- round(sk_ex,3)
+sk_ex
+
+
+kt_ex <- my_exam %>% 
+  select(everything()) %>% 
+  summarise(kt_db=kurtosis(database),
+            kt_java=kurtosis(java),
+            kt_japan=kurtosis(japan),
+            kt_eng=kurtosis(eng))
+
+kt_ex <- round(kt_ex,3);kt_ex
+
+x11();par(mfrow=c(2,2))
+plot(density(my_exam$database), 
+     main= paste("db_sk:", sk_ex[1]," kt:", kt_ex[1]))
+plot(density(my_exam$java), 
+     main= paste("java_sk:", sk_ex[2]," kt:", kt_ex[2]))
+plot(density(my_exam$japan), 
+     main= paste("japan_sk:", sk_ex[3]," kt:", kt_ex[3]))
+plot(density(my_exam$eng), 
+     main= paste("eng_sk:", sk_ex[4], " kt:", kt_ex[4]))
+
+#4-3). 표준정규분포 ----
+#+ standard normal distribution
+#+ dnorm(x, mean=0, sd=1)
+#+ => 특정 관측값(x)에 대한 y축의 값(확률밀도함수 값)을 return
+
+#1)
+
+temp <- seq(-5,5);temp #-5 ~ 5
+summary(temp)
+
+mean(temp) #0
+var(temp) #11
+sd(temp)  #3.316625
+
+sqrt(var(temp)) #표준편차 = 루트(분산)
+plot(temp)
+
+#2)
+
+xx <- seq(-5,5, length=300);xx
+summary(xx)
+
+mean(xx)
+median(xx)
+var(xx)
+sd(xx)
+
+plot(xx)
+
+#3) dnorm() #(default) mean=0, sd=0
+
+#temp
+dnorm(temp)
+dnorm(temp, mean=0, sd=1) #snd(표준정규분포)
+
+all.equal(dnorm(temp), dnorm(temp, mean=0, sd=1))
+
+#xx
+
+dnorm(xx)
+dnorm(xx, mean=0, sd=1)
+
+# 4)분포도
+
+par(mfrow=c(2,2))
+par(mar=c(1,1,1,1))
+#temp
+temp
+length(temp)
+summary(temp)
+plot(temp,main="단순 산점도")
+plot(density(temp),main="밀도 추정") #추정치야 아래 x축을 보면 값이 다르다는 것을 알 수 있어
+plot(dnorm(temp), type="l", main="표준정규분포?")
+
+#+ mean=0, sd=1
+#+ 실제: mean=0, sd=3.317
+
+#기본값과 다를 때는 직접 넣어줘야하는 것
+plot(dnorm(temp, mean = 0, sd=3.317), type="l", main="실제분포도?")
+
+#xx
+xx
+sd(xx)
+length(temp)
+summary(xx)
+plot(xx,main="단순 산점도")
+plot(density(xx),main="밀도 추정") #추정치야 아래 x축을 보면 값이 다르다는 것을 알 수 있어
+plot(dnorm(xx), type="l", main="표준정규분포?")
+
+#+ mean=0, sd=1
+#+ 실제: mean=0, sd=2.901
+plot(dnorm(xx, mean = 0, sd=2.901), type="l", main="실제분포도?")
+
+#밀도함수랑 위에 함수들이랑 x값이 다를걸? 그거 맞춰줘야해 ! 앞쪽에 xx를 넣어줘야해
+plot(xx, dnorm(xx), type="l", main="xx_n(0,1)")
+plot(xx, dnorm(xx, mean = 0, sd=2.901), type="l", main="xx_n(0, 2.901)")
+
+#Q5 ----
+#+ dataset: my_exam, 4개의 변수(db,java,japan,eng)
+#+ 산점도, 밀도추정, 표준정규분포, n(평균,1), n(0,표준편차), 실분포도도
+summary(my_exam$database)
+
+plot(my_exam$database)
+plot(density(my_exam$database))
+plot(my_exam$database,dnorm(my_exam$database, mean = 0, sd=1), type="l")
+plot(my_exam$database,dnorm(my_exam$database, mean = 56.133 , sd=1), type="l")
+plot(my_exam$database,dnorm(my_exam$database, mean = 0 , sd=19.595), type="l")
+plot(my_exam$database,dnorm(my_exam$database, mean = 56.133 , sd=19.595), type="l")
+
+
+plot(my_exam$java)
+plot(density(my_exam$java))
+plot(my_exam$java,dnorm(my_exam$java, mean = 0, sd=1), type="l")
+plot(my_exam$java,dnorm(my_exam$java, mean = 84.533 , sd=1), type="l")
+plot(my_exam$java,dnorm(my_exam$java, mean = 0 , sd=12.173), type="l")
+plot(my_exam$java,dnorm(my_exam$java, mean = 84.533 , sd=12.173), type="l")

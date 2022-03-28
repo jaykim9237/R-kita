@@ -397,3 +397,87 @@ ggplot(data=my_mpg, aes(x=manufacturer, y=class))+
   theme(plot.title = element_text(hjust = 0.5))
 
 
+
+# 표본 추출(=sample) # 머신러닝 자주 사용 
+
+?sample_n #dplyr::
+#+ sample(dataset, n개) #n개 만큼 랜덤샘플 추출
+
+sample_n(my_mpg,5)
+
+set.seed(1234);sample_n(my_mpg,5)
+
+?sample_frac #dplyr::
+#+ sample(dataset, n비율) #n비율 만큼 랜덤샘플 추출 * 
+
+sample_frac(my_mpg,0,01)
+
+set.seed(234); sample_frac(my_mpg,0,01)
+
+#VQ6. -----
+
+#1. 구동방식별(drv) 평균 -hwy
+install.packages("ggplot2")
+library(ggplot2)
+
+df_mpg <- my_mpg %>% 
+  group_by(drv) %>% 
+  summarise(m_hwy=mean(hwy))
+df_mpg
+
+# 2) 막대그래프 
+#+ x: drv, y: m_hwy 
+
+library(ggplot2)
+search()
+ggplot2::ggplot(data=df_mpg, aes(x=drv, y=m_hwy))+geom_col() 
+
+# 막대그래프 정렬
+ggplot(data=df_mpg, aes(x=reorder(drv, -m_hwy), y=m_hwy))+geom_col()
+
+nrow(mtcars)
+str(mtcars)
+
+#7. 데이터 결측치 (missing value) ----
+#7-1. NA 포함 dataset 생성
+
+data.frame(mw=c("M", "M", "F", "M", NA, NA, "F", NA, "M", "F"),
+           score = c(61, 98, 85, NA, 66, 72, 81, NA, 63, 74))
+
+df_temp <- data.frame(mw=c("M", "M", "F", "M", NA, NA, "F", NA, "M", "F"),
+           score = c(61, 98, 85, NA, 66, 72, 81, NA, 63, 74))
+
+df_temp
+
+#7-2.결측치 확인
+is.na(df_temp)
+table(is.na(df_temp))
+
+# 7-2-1. 결측치가 있으면 안되는 이유
+mean(df_temp$score)
+max(df_temp$score)
+
+#na가 있으면 평균을 구할 수가 없기 때문에 빼주고 계산하는 것
+mean(df_temp$score, na.rm=T)
+max(df_temp$score, na.rm=T)
+
+# 7-2-2. 컬럼별로 결측치 확인
+
+table(is.na(df_temp$mw))
+table(is.na(df_temp$score))
+
+# 7-3. 결측치를 제거 후, 분석 방법
+
+library(dplyr)
+
+# 7-3-1. 모든 행 제거 방식
+
+df_real <- na.omit(df_temp)
+mean(df_real$score)
+
+# 7-3-2. 컬럼별 접근 제거
+
+df_temp
+
+df_temp %>% 
+  filter(!is.na(df_temp$score))

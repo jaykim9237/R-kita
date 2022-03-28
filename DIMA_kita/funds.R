@@ -1125,42 +1125,4 @@ my_mpg2 %>% select(model,class,fl,puel,gallon)
 head(my_mpg2,10)
 
 
-# 표본 추출(=sample) # 머신러닝 자주 사용 
 
-?sample_n #dplyr::
-#+ sample(dataset, n개) #n개 만큼 랜덤샘플 추출
-
-sample_n(my_mpg,5)
-
-set.seed(1234);sample_n(my_mpg,5)
-
-?sample_frac #dplyr::
-#+ sample(dataset, n비율) #n비율 만큼 랜덤샘플 추출 * 
-
-sample_frac(my_mpg,0,01)
-
-set.seed(234); sample_frac(my_mpg,0,01)
-
-#VQ6. -----
-
-#1. 구동방식별(drv) 평균 -hwy
-install.packages("ggplot2")
-library(ggplot2)
-
-df_mpg <- my_mpg %>% 
-  group_by(drv) %>% 
-  summarise(m_hwy=mean(hwy))
-df_mpg
-
-# 2) 막대그래프 
-#+ x: drv, y: m_hwy 
-
-library(ggplot2)
-search()
-ggplot2::ggplot(data=df_mpg, aes(x=drv, y=m_hwy))+geom_col() 
-
-# 
-ggplot(data=df_mpg, aes(x=reorder(drv, -m_hwy), y=m_hwy))+geom_col()
-
-nrow(mtcars)
-str(mtcars)
