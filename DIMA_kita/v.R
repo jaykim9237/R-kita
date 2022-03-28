@@ -479,5 +479,110 @@ mean(df_real$score)
 
 df_temp
 
-df_temp %>% 
-  filter(!is.na(df_temp$score))
+df_temp %>% dplyr::filter(!is.na(df_temp$mw))
+df_temp %>% dplyr::filter(!is.na(df_temp$score))
+
+df_real12 <- df_temp %>% dplyr::filter(!is.na(df_temp$score)) 
+mean(df_real12$score)
+
+
+# 7-4. 결측치 제외 방법
+#+ 나중에 NA가 측정될 것을 대비하는 것
+
+# 7-4-1. 함수 레벨에서 결측치 제외
+df_temp
+mean(df_temp$score, na.rm = T)
+sum(df_temp$score, na.rm = T)
+
+# 7-4-2. NA값 제외 (실습)
+
+#1) dataset 로딩
+
+temp_exam <- read.csv("ss_exam.csv")
+temp_exam
+
+#2) NA 추가 및 
+
+#NA 사전확인
+names(temp_exam)
+
+dim(temp_exam)
+table(is.na(temp_exam))
+sum(is.na(temp_exam))
+colSums(temp_exam) #컬럼의 값들을 더해주는 것
+
+#NA 추가
+
+head(temp_exam)
+temp_exam[c(2,3,7,11,23,25), "database"] <-NA
+
+#NA 재확인
+table(is.na(temp_exam))
+sum(is.na(temp_exam))
+colSums(temp_exam) #컬럼의 값들을 더해주는 것
+
+colSums(temp_exam) # NA때문에 sum이 안된다.
+
+#3) NA값 제외
+
+temp_exam %>% summarise(mean(database))
+temp_exam %>% summarise(mean(database, na.rm=T))
+
+#7-5. 결측치 대체 방법
+#+ 자주 대체되는 값: min, max, mean, median, dima_mode, 0
+
+#7-5-1. 대체값 구하기
+temp_exam2 <- read.csv("ss_exam.csv")
+temp_exam2
+
+temp_exam2[c(2,3,7,11,23,25), "database"] <- NA #NA처리
+
+table(is.na(temp_exam2))
+
+mean(temp_exam2$database, na.rm = T)
+median(temp_exam2$database, na.rm = T)
+subs <- median(temp_exam2$database, na.rm = T)
+subs
+
+#7-5-2. NA를 대체값으로 처리 후, 분석석
+
+table(is.na(temp_exam2$database))
+colSums(is.na(temp_exam2))
+
+?ifelse()
+
+temp_exam2$database
+
+ifelse(is.na(temp_exam2$database), 333, temp_exam2$database)
+
+temp_exam2$database <- ifelse(is.na(temp_exam2$database), subs, temp_exam2$database)
+
+temp_exam2$database
+temp_exam2 %>% summarise(m_db = mean(database))
+
+#VQ7 ----
+
+#1) mpg dataset에서 cty와 hwy 간의 관계파악을 위한 산점도를 구성하세요. 
+#package & dataset : ggplot2::, ggplot2::mpg, ggplot2::miidwest
+#x=cty, y=hwy
+
+plot(x= my_mpg$cty, y = my_mpg$hwy)
+
+#2) midwest dataset에서 전체인구(poptotl)와 popasian간의 관계를 확인하세요.
+#산점도 : x=전체인구, y=아시안인구
+#범위설정: 전체인구 <= 50만명, 아시아인구 <= 1만명
+#산점도 그래프 저장(****.jpg)
+
+midwext <- ggplot2::midwest
+
+midwext
+ggplot(midwest, aes(x=poptotal, y=popasian)) + geom_point()
+
+
+# 2)
+#+ 산점도: x=전체인구, y=아시아 인구
+?midwest
+ggplot(midwest, aes(x=poptotal, y=popasian))+
+  geom_point()+
+  xlim(0,500000)+
+  ylim(0,10000)
