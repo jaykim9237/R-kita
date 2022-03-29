@@ -708,4 +708,85 @@ out_mpg %>%
   group_by(drv) %>% 
   summarise(m_hwy = mean(hwy, na.rm=T), n=n())
 
+#VQ8. ----
 
+# 1. 제조사의 class중 중형(midsize)의 평균 도시연비(cty)가 가장 높은 회사 5곳을 표기 하시오
+#+ 단, 막대그래프는 도시연비가 높은 순으로 정렬
+#+ ggplot2::mpg
+
+View(out_mpg)
+
+my_mpg <- ggplot2::mpg
+
+names(my_mpg)
+unique(my_mpg)
+
+
+
+my_mpg %>% 
+  select(1,2,11,cty) %>% 
+  dplyr::filter(class == "midsize") %>% 
+  group_by(manufacturer) %>% 
+  summarise(m_cty=mean(cty)) %>% 
+  arrange(-m_cty) %>% 
+  head(5)
+  
+
+p_mpg
+
+#plot
+
+ggplot(data=p_mpg, aes(x=manufacturer, y=m_cty))+geom_point()
+ggplot(data=p_mpg, aes(x=manufacturer, y=m_cty))+
+  geom_point(col="red", size=5)
+
+ggplot(data=p_mpg, aes(x=reorder(manufacturer, m_cty), y=m_cty))+
+  geom_point(col="red", size=5) #정렬
+ggplot(data=p_mpg, aes(x=reorder(manufacturer, -m_cty), y=m_cty))+
+  geom_point(col="red", size=5) #역정렬
+
+# plot-bar / col
+ggplot(data=p_mpg, aes(x=manufacturer, y=m_cty))+geom_col()
+ggplot(data=p_mpg, aes(x=reorder(manufacturer, -m_cty), y=m_cty))+geom_col()
+
+
+
+# 2. 자동차 중에서 어떤 class가 가장 많은 지 , 자동차 종류별 빈도를 막대그래프로 표기하시오
+
+bar_mpg <- my_mpg %>% count(class) %>% arrange(-n)
+
+my_mpg %>% 
+  group_by(class) %>% 
+  summarise(count = n()) %>% 
+  arrange(-count)
+
+
+bar_mpg
+
+
+#plot
+ggplot(data=bar_mpg, aes(x=class, y=n))+geom_col()
+ggplot(data=bar_mpg, aes(x=reorder(class, -n), y=n))+geom_col()
+
+
+#VQ9. 상자 그림
+# 하기 자동차 종류(class)의 도시연비(cty) 를 box-plot으로 비교분석하세요
+
+tt <- unique(my_mpg$class)
+
+tt[1]
+
+tt[c(-4,-7)]
+
+t_mpg <- my_mpg %>% 
+  select(class, cty) %>% 
+  dplyr::filter(class %in% c(tt[c(-4,-7)]))
+
+
+#plot
+ggplot(data= t_mpg, aes(x=class, y=cty))+geom_boxplot()  
+box_p <- ggplot(data= t_mpg, aes(x=class, y=cty))+geom_boxplot()
+
+ggsave(filename = "box_p.jpg", plot=box_p)  
+
+  

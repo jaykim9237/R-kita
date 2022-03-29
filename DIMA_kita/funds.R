@@ -1124,5 +1124,256 @@ View(my_mpg2)
 my_mpg2 %>% select(model,class,fl,puel,gallon)
 head(my_mpg2,10)
 
+#Q11 ----
+
+# 1) midwest의 복사본을 생성하여 "전체 인구 대비 미성년 인구 백분율"을 파생변수를 추가하세요
 
 
+#선생님
+my_mid <-midwest
+my_mid <- my_mid %>% 
+  mutate(nonage_r = (poptotal - popadults)/poptotal*100)
+
+my_mid
+# 2) 미성년 인구 백분율이 40~43%에 해당하는 지역을 출력하세요
+
+
+#선생님
+my_mid %>% 
+  select(state, county, nonage_r) %>% 
+  dplyr::filter(between(nonage_r, 40,43)) %>% 
+  arrange(-nonage_r)
+  
+
+# 3) 미성년 비율에 대한 분류기준 등급(파생변수)을 추가하고, 각 등급에 해당하는 지역이 몇개 있는지 확인하세요.
+#등급: large(38% 이상), middle(30~38 미만), small(30미만)
+
+#선생님
+my_mid <- my_mid %>% 
+  mutate(nonage_grade = ifelse(nonage_r >=38, "large", 
+                               ifelse(nonage_r >=30, "middle", "small")))
+names(my_mid)
+dim(my_mid)
+table(my_mid$nonage_grade)
+paste(round(prop.table(table(my_mid$nonage_grade))*100,2),"%")
+ggplot2::qplot(my_mid$nonage_grade)
+
+# 4) 전체 인구 대비 아시아인 인구 백분율을 비교하여 하위 15개 지역에 대한 정보를 출력하세요
+#출력: state(주), count(지역명), popasian, poptotal, 아시아인 인구 백분율
+
+
+#선생님
+#+ 4. 전체 인구 대비 아시아인 인구 백분율을 비교해서 하위 15개 지역에 대한 정보를 출력해라 
+#+ 출력: state(주), county(지역명), popasian(아시아 인구), poptotal(전체인구), 아시아인 인구 백분율 
+
+#+ 교수님 답안:
+my_mid %>%
+  mutate(asian_r = (popasian/poptotal)*100) %>%
+           select(state,county,popasian,poptotal,asian_r,percasian) %>%
+           arrange(asian_r) %>%
+           head(15)
+# 5-8. 데이터 구조 변경
+
+# 0. packages & datasets
+
+install.packages("tidyr")
+install.packages("reshape2")
+
+library(tidyr)
+library(reshape2)
+options("install.lock"=FALSE)
+search()
+
+# dataset
+?mtcars  # datasets::
+
+my_car <- mtcars
+names(my_car)
+dim(my_car)
+
+head(my_car)
+rownames(my_car)
+
+#범기
+my_car %>% mutate(row_name = tolower(rownames(my_car))) #이것도 좋고
+my_car$rowname <- tolower(rownames(my_car))
+
+
+
+tolower(rownames(my_car)) #소문자로 바뀝니다
+toupper(rownames(my_car)) #대문자로 바뀝니다.
+
+
+
+my_car$rowname
+
+
+# 1. rownames -> new 컬럼 추가
+
+tolower(rownames(my_car))
+toupper(rownames(my_car))
+
+# my_car %>% 
+#  mutate(row_name = tolower(rownames(my_car)))
+names(my_car)
+
+head(my_car)
+dim(my_car)
+
+# 기존 rowname 삭제
+
+rowname(my_car) <- NULL
+head(my_car)
+
+# 2. new dataset 생성
+
+names(my_car)
+
+my_car <- my_car %>% 
+  select(rowname, am, mpg, cyl, disp)
+
+dim(my_car)  # 32, 5
+
+# 5-8-3. 가로형 -> 세로형 ----
+
+# 3-1. tidyr::gather
+
+names(my_car)
+head(my_car)
+dim(my_car)  # 32, 5
+
+View(my_car, "1")
+
+my_car %>% 
+  gather(key = "c_key", value = "c_value", cyl)
+
+dim(my_car %>% 
+      gather(key = "c_key", value = "c_value", cyl))
+
+View(my_car %>% 
+       gather(key = "c_key", value = "c_value", cyl), "2")
+
+dim(my_car %>% 
+      gather(key = "c_key", value = "c_value", cyl, disp))
+
+View(my_car %>% 
+       gather(key = "c_key", value = "c_value", cyl, disp, am), "3")
+
+my_car_gather <- my_car %>% 
+  gather(key="c_key", value = "c_value", cyl)
+
+head(my_car_gather,2);dim(my_car)
+
+# 3-2. reshape2::melt
+
+dim(my_car)
+names(my_car)
+head(my_car)
+
+?melt
+
+my_car_melt <- my_car %>% 
+  melt(measure.vars = "cyl",
+       id.vars=c("rowname","am","mpg","disp")) %>% head(4)
+
+head(my_car_melt,2);dim(my_car_melt)
+
+# 5-8-4. 세로형 -> 가로형
+
+# 4-1. tidyr::spread
+
+head(my_car_gather);names(my_car_gather)
+
+my_car_gather %>% 
+  spread(key="c_key", value = "c_value")
+
+my_car_spread <- my_car_gather %>% 
+  spread(key="c_key", value = "c_value")
+
+names(my_car_spread)
+head(my_car_spread)
+dim(my_car_spread)
+
+dim(my_car);head(my_car)
+
+#dataset 비교
+
+all.equal(my_car, my_car_spread)
+
+head(my_car)
+head(my_car_spread)
+#data 정렬
+my_car %>% arrange(rowname)
+my_car_spread %>% arrange(rowname)
+
+all.equal((my_car %>% arrange(rowname)),
+          (my_car_spread %>% arrange(rowname)))
+
+#컬럼명 정렬
+names(my_car)
+names(my_car_spread)
+
+my_car %>% select(1,2,3,4,5) %>%arrange(rowname)
+my_car_spread %>% select(1,2,3,4,5) %>%arrange(rowname)
+
+all.equal((my_car %>% select(1,2,3,4,5) %>%arrange(rowname)), (my_car_spread %>% select(1,2,3,4,5) %>%arrange(rowname))) #T
+
+# 4-2. reshape2::dcast
+#+ dcast(함께 보여질 컬럼 ~ 컬럼화 할 data)
+
+my_car_melt
+names(my_car_melt)
+dim(my_car_melt)
+
+my_car_melt %>% 
+  dcast(rowname~variable)
+
+my_car_melt %>% 
+  dcast(rowname+am+mpg+disp~variable)
+
+my_car_melt %>% dcast(rowname+am+mpg+disp~variable)
+
+my_car_dcast <- my_car_melt %>% 
+  dcast(rowname+am+mpg+disp~variable)
+
+names(my_car_dcast)
+
+dim(my_car_dcast)
+names(my_car_dcast)
+head(my_car_dcast)
+
+# 5-8-5. reshape2::acast #세로 -> 가로 ----
+#+ 핼열과 배열로 return
+#+ reshape2::acast(x1 ~ x2 ~ x3)
+#+ reshape2::acast(행기준 ~ 데이터값 ~ 열기준)
+
+head(my_car_melt)
+dim(my_car_melt)
+
+my_car_melt %>% acast(rowname ~ mpg ~ variable)
+
+my_car_acast <- my_car_melt %>% acast(rowname ~ disp ~ variable)
+
+class(my_car_acast)
+
+?acast
+
+#VQ10. 데이터 결측치
+
+#1. my_mpg를 생성한 후, 아래 rownum의 cty에 결측치를 강제로 할당하세요
+#rownum:11,23,50,78,111,132,150,161,183,201
+
+#2. 구동방식(drv)별 도시연비의 평균이 어떻게 다른지 확인하고자 한다.
+
+#2-1. 결측치가 몇개 있는지 확인하세요.
+
+#2-2. cty결축치 data는 제외하고, drv별 cty의 평균을 구하시오
+#조건: 내림차순 정렬, filter사용, 한문장의 dplyr 구문
+
+
+
+
+
+
+
+ 
