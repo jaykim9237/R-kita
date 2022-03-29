@@ -579,10 +579,133 @@ midwext
 ggplot(midwest, aes(x=poptotal, y=popasian)) + geom_point()
 
 
-# 2)
+# 2) 조장님
 #+ 산점도: x=전체인구, y=아시아 인구
 ?midwest
 ggplot(midwest, aes(x=poptotal, y=popasian))+
   geom_point()+
   xlim(0,500000)+
   ylim(0,10000)
+
+# 7-1) 선생님 답안
+search()
+
+names(my_mpg)
+
+gglot(data=my_mpg, aes(x= cty, y = hwy)) + geom_point()
+
+# 7-2)
+temp_mid <- ggplot(data=midwest, aes(x=poptotal, y=popasian))+ 
+      geom_point()+ 
+      xlim(0,500000)+ 
+      ylim(0,10000)
+
+class(temp_mid)
+
+#저장
+
+getwd()
+?ggsave
+ggsave(filename = "temp_mid.jpg", plot = temp_mid,
+       width = 20, height = 15, units = 'cm', dpi=1000)
+
+#unit = c("in", "cm", "mm", "px")
+
+# 8. 이상치 (Outlier) ----
+# 8-1. 논리적인 이상치
+
+#8-1-1. 이상치 dataset 생성
+#+ 성별: 1~2, 설문: 1~5
+
+t_out <- data.frame(mw=c(1,2,1,1,2,4),
+           survey=c(1,3,5,4,10,3))
+
+t_out
+
+# 8-1-2. 논리적인 이상치 확인
+
+table(t_out)
+table(t_out$mw)
+table(t_out$survey)
+
+boxplot(t_out)
+names(boxplot(t_out))
+boxplot(t_out)$stats
+boxplot(t_out$mw)$stats
+boxplot(t_out$survey)$stats
+
+
+car::Boxplot(t_out)
+t_out[6,"mw"]
+t_out[5,"survey"]
+
+# 8-3. 논리적인 이상치 제거
+#+ filter() -> NA 변경 -> !is.na() 활용 분석석
+
+# t_out$mw
+ifelse(t_out$mw==4, NA, t_out$mw)
+
+t_out$mw <- ifelse(t_out$mw==4, NA, t_out$mw)
+t_out$mw
+
+
+#t_out$survey
+ifelse(t_out$survey > 5, NA, t_out$survey)
+t_out$survey <- ifelse(t_out$survey > 5, NA, t_out$survey)
+
+t_out$survey
+
+
+# 8-1-4. 결측치 제거 후, 분석
+
+library(dplyr);search()
+
+t_out %>% 
+  dplyr::filter(!is.na(mw)&!is.na(survey)) %>% 
+  group_by(mw) %>% 
+  summarise(m_survey = mean(survey))
+
+# 8-2. 극단적인 이상치 ----
+#+ 논리적인 판단 기준: 성인 사람의 키 (0.5~2.5m)
+#+ 통계적인 판단 기준: sd+-3 이상/이하 or +- 1.5IQR 이상/이하
+
+# 8-2-1. 극단적인 이상치 확인
+
+install.packages(ggplot2)
+
+out_mpg <- ggplot2::mpg
+dim(out_mpg)
+out_mpg
+
+boxPlot(out_mpg$hwy)
+boxPlot(out_mpg$hwy)$stats
+car::Boxplot(out_mpg$hwy)
+
+# 8-2-2. 극단치 제거
+#+ 조건에 부합하지 않는 값은 NA 변경 -> NA 제외 분석
+#+ 조건: 12~37
+
+?ifelse
+ifelse(out_mpg$hwy < 12 | out_mpg$hwy >37, NA, out_mpg$hwy)
+
+table(ifelse(out_mpg$hwy < 12 | out_mpg$hwy >37, NA, out_mpg$hwy))
+table((ifelse(out_mpg$hwy < 12 | out_mpg$hwy >37, NA, out_mpg$hwy)), useNA = "ifany")
+
+
+out_mpg$hwy <- ifelse(out_mpg$hwy < 12 | out_mpg$hwy >37, NA, out_mpg$hwy)
+
+table(is.na(out_mpg$hwy))
+
+# 8-2-3. 결측치 제외 후 분석
+
+dim(out_mpg)
+
+out_mpg %>% 
+  group_by(drv) %>% 
+  summarise(mean(hwy))
+
+out_mpg %>% 
+  group_by(drv) %>% 
+  summarise(m_hwy = mean(hwy, na.rm=T), n=n())
+
+
