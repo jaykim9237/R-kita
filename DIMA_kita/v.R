@@ -789,4 +789,110 @@ box_p <- ggplot(data= t_mpg, aes(x=class, y=cty))+geom_boxplot()
 
 ggsave(filename = "box_p.jpg", plot=box_p)  
 
+# A. map (코로플레스도, choropleth map)----
+
+# 0. packages & datasets ----
+rm(list = ls())
+ls()
+
+# 1)pkg: ggiraphExtra #단계별 구분도 관련 함수 
+                      # 단계별 구분도 관련 함수
+                      #+ ggChorooleth(), 단계구분도 함수
   
+# 2) pkg: mapproj     # 단계별 구분도 plotting 시에 필수            
+# 3) pkg: maps        # 지도정보
+# 4) pkg: ggplot2     # map_data()
+                      #+ map_data를 data.frame으로 변환
+
+# 5) pkg: tibble      #rownames_to_column()
+
+options("install.lock"=FALSE)
+
+install.packages("ggiraphExtra")
+install.packages("mapproj")
+install.packages("maps")
+install.packages("ggplot2")
+install.packages("tibble")
+
+library(ggiraphExtra)
+library(mapproj)
+library(maps)
+library(ggplot2)
+library(tibble)
+
+search()
+
+?map_data()
+map_data("state")
+dim(map_data("state"))
+
+# 0-2. dataset
+
+data(package="datasets")
+head(USArrests)
+?USArrests
+
+my_USArr <- USArrests
+names(my_USArr)
+
+
+# 1. data 전처리 (data pre-processing)----
+
+names(USArrests)
+
+# 1-1.
+my_USArr <- rownames_to_column(my_USArr, var = 'state')
+names(my_USArr)
+
+head(my_USArr)
+dim(my_USArr)
+
+# 1-2. state 소문자로----
+?tolower()
+my_USArr$state <- tolower(my_USArr$state)
+head(my_USArr)
+
+# 2. 지도 준비 (map preparation)
+
+# 2-1. 지도확인 ----
+maps::map("world")
+maps::map("usa")
+maps::map("state")
+
+# 2-2. 지도 data 가져오기 ----
+
+USA_map <- map_data("state")
+names(USA_map)
+head(USA_map)
+dim(USA_map)
+str(USA_map)
+
+# 3. 코로플레스도(단계구분도) ----
+
+names(my_USArr) # biz data
+class(my_USArr)
+names(USA_map)  # map data
+class(USA_map)
+
+?ggChoropleth
+ggChoropleth(data = my_USArr,
+             map = USA_map,
+             aes(fill=Murder,
+                 map_id=state),
+             title = "USA Arrest Rate(Murder)",
+             color ="darkblue"
+             )
+
+# 4. 인터렉티브 map
+
+ggChoropleth(data = my_USArr,
+             map = USA_map,
+             aes(fill=Murder,
+                 map_id=state),
+             title = "USA Arrest Rate(Murder)",
+             color ="darkblue",
+             interactive = T
+)
+
+# 5. HTML 파일 저장하기
+

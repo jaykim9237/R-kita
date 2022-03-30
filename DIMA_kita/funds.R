@@ -1363,12 +1363,106 @@ class(my_car_acast)
 #1. my_mpg를 생성한 후, 아래 rownum의 cty에 결측치를 강제로 할당하세요
 #rownum:11,23,50,78,111,132,150,161,183,201
 
+search()
+my_mpg <- ggplot2::mpg
+
+my_mpg[c(11,23,50,78,111,132,150,161,183,201), "cty"] <- NA
+my_mpg[c(11,23,50,78,111,132,150,161,183,201), "cty"]
+
+
+
 #2. 구동방식(drv)별 도시연비의 평균이 어떻게 다른지 확인하고자 한다.
 
 #2-1. 결측치가 몇개 있는지 확인하세요.
 
+table(is.na(my_mpg$drv))
+table(is.na(my_mpg$cty))
+
 #2-2. cty결축치 data는 제외하고, drv별 cty의 평균을 구하시오
 #조건: 내림차순 정렬, filter사용, 한문장의 dplyr 구문
+
+library(dplyr)
+
+my_mpg %>% 
+  dplyr::filter(!is.na(my_mpg$cty)) %>% 
+  group_by(drv) %>% 
+  summarise(m_cty=mean(cty)) %>% 
+  arrange(-m_cty)
+
+#1) dataset
+
+df_p <- read.table(header = TRUE, stringsAsFactors = F, text = "
+age gender name p_type p_topping
+ 20  F     D소휘 R     t_포테이토
+ 20  M     D기도 L     t_쉬림프
+ 23  M     D도일 L     t_쉬림프
+ 25  F     D혜원 R     t_포테이토
+ 20  M     D우혁 L     t_고구마
+ 15  M     D기범 L     t_페페로니
+ 25  F     D현정 L     t_페페로니
+ 27  M     D동준 L     t_스테이크
+ 23  M     D준태 L     t_불고기
+ 29  F     D구연 L     t_포테이토
+")
+
+ df_p
+ 
+ #2) 토핑컬럼(p_topping) 용해
+
+ library(tidyr)
+  
+ head(df_p)
+
+ df_p %>% 
+   gather(key="c_key", value="c_value", p_topping)
+ 
+ df_p_gather <- df_p %>% 
+   gather(key="c_key", value="c_value", p_topping)
+ 
+ df_p_gather
+ 
+#3) 행과 열만 지정
+library(reshape2)
+ names(df_p_gather)
+ 
+ df_p_gather %>% acast(gender~name)
+ 
+#4) 1,2,3 기준
+
+ df_p_gather %>% acast(gender~name~p_type)
+ class(df_p_gather %>% acast(gender~name~p_type))
+
+#5) 1,2, 3, + 4 기준
+ 
+ names(df_p_gather)
+ df_p_gather %>% acast(gender~name~p_type + age)
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
 
 
 
