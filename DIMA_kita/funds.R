@@ -1438,7 +1438,236 @@ library(reshape2)
  df_p_gather %>% acast(gender~name~p_type + age)
 
 
-
+ #----------------3/31 Start------------
+ # R&D 6-1. ----
+ 
+ # 6-1. 1) 특정문자를 조회하는 방식
+ #+ SQL> like 연산자 사용 
+ #+ pkg : stringr
+ #+ pkg : data.table
+ 
+ # 6-1-1. ----
+ install.packages("data.table")
+ 
+ library(data.table);search()  # like
+ library(stringr);search()     # str_detect()
+ library(ggplot2);search()
+ library(dplyr);search() # %>% 연산자 패키지
+ 
+ my_mpg <-ggplot2::mpg
+ names(my_mpg)
+ 
+ 
+ # 문자 a를 가지고 있는 
+ 
+ my_mpg %>%
+   filter(manufacturer %like% 'a') %>%
+   distinct(manufacturer)     # data.table # 중복값 제거
+ 
+ View(my_mpg)
+ 
+ my_mpg %>%
+   filter(str_detect(manufacturer,'a')) %>%
+   distinct(manufacturer)     # stringr::str_detect 
+ 
+ 
+ # 문자 a로 시작..^a a로 시작한다. 
+ 
+ my_mpg %>% 
+   filter(manufacturer %like% '^a') %>% 
+   distinct(manufacturer)  # data.table
+ 
+ my_mpg %>% 
+   filter(str_detect(manufacturer, '^a')) %>% 
+   distinct(manufacturer)  # stringr::str_detect
+ 
+ # 문자 c로 끝나는.... c$ c로 시작하다. 
+ 
+ my_mpg %>% 
+   filter(manufacturer %like% 'c$') %>% 
+   distinct(manufacturer)  # data.table
+ 
+ my_mpg %>% 
+   filter(str_detect(manufacturer, 'c$')) %>% 
+   distinct(manufacturer)  # stringr::str_detect
+ 
+ # 문자 c 또는 i 또는 s가 들어가 있는 문자 [ ]
+ my_mpg %>% 
+   filter(manufacturer %like% '[cis]') %>% 
+   distinct(manufacturer)  # data.table
+ 
+ my_mpg %>% 
+   filter(str_detect(manufacturer, '[cis]')) %>% 
+   distinct(manufacturer)  # stringr::str_detect
+ 
+ # 6-1-2. ----
+ 
+ installed.packages()
+ 
+ installed.packages()[,1] # 이미 설치되어 있는 패키지
+ head(installed.packages())
+ dim(installed.packages()) # 153행 16열이 나와야 함   
+ # 이미 설치되어 있는 패키지
+ 
+ class(installed.packages())    # matrix array 형태 data.frame x 
+ colnames(installed.packages()) # *
+ names(installed.packages())  # data.frame에만 먹는다 
+ 
+ # (installed.packages() type 변경
+ 
+ ins_pkg <- as.data.frame(installed.packages())
+ 
+ class(ins_pkg)
+ names(ins_pkg)
+ 
+ 
+ # 
+ "XML" %in% installed.packages()
+ "dplyr" %in% installed.packages()
+ 
+ # %in% : 
+ 
+ dima_check <-function(x) {
+   xx <- x%in% installed.packages()
+   return(xx)
+ }
+ 
+ dima_check("ggplot2")
+ dima_check("XML")
+ 
+ # 6. 데이터 분석 및 가공 ---- 3/31
+ 
+ # 6-1. apply ----
+ ?apply
+ # 6-1-1 기본
+ 
+ #+ apply(data, 방향, 함수, 인자)
+ #+ 방향 : 1(행), 2(열)
+ 
+ a1 <- matrix(1:12,2, 4);a1   # 열 우선
+ a2 <- matrix(1:12,2, 4, byrow=T);a2 # 행 우선 
+ 
+ apply(a1,1, min )  # a1 자리는 벡터(x) * 
+ apply(a1,2, max ) 
+ class(apply(a1,2, max ))
+ 
+ # 6-1-2. 다른 함수 활용  ----
+ 
+ a2 <- matrix(c("dima_구연","dima_동준",
+                "dima_기도","dima_기범"),2,2);a2
+ a2 
+ 
+ # 6-1-3. 다른 함수 활용  ----
+ 
+ 
+ # 사용자 함수 구성
+ install.packages("stringr")
+ search()
+ 
+ d_sub <- function(x){
+   return (stringr::str_sub(x, 6, 7))
+   #+  str_sub(string, 시작, 끝)
+ }
+ 
+ d_sub(a2)
+ 
+ # ****** 다른 함수를 써먹을 수 있다. 
+ a2
+ apply(a2,1,d_sub)
+ apply(a2,2,d_sub)
+ 
+ # 6-1-3. apply testing ----
+ my_exam <- read.csv("ss_exam.csv");dim(my_exam)
+ head(my_exam)
+ 
+ my_exam[,-1:-2]
+ apply(my_exam[,-1:-2],1,sum)   # 30개
+ apply(my_exam[,-1:-2],1,mean)  # 30개
+ 
+ apply(my_exam[,-1:-2],2,sum)  # 4개
+ apply(my_exam[,-1:-2],2,mean)  # 4개
+ 
+ # NA처리
+ #+ apply(X, 방향, 함수, 함수옵션) : NA처리 안됨 
+ #+ 단, 함수옵션은 사용가능
+ 
+ head(my_exam)
+ my_exam[4,5:6]  <- NA
+ head(my_exam)
+ 
+ # NA처리 후, 결과 확인(X)
+ apply(my_exam[,-1:-2],1,sum)   # 29개 *
+ apply(my_exam[,-1:-2],1,mean)  # 29개 **
+ 
+ apply(my_exam[,-1:-2],2,sum)  # 2개 ***
+ apply(my_exam[,-1:-2],2,mean)  # 2개 ****
+ 
+ # 함수옵션 사용시 결과 확인(O)
+ apply(my_exam[,-1:-2],1,mean,na.rm=T)  # 30개
+ apply(my_exam[,-1:-2],2,mean,na.rm=T)  # 4개
+ 
+ # 함수옵션을 사용하지 않는 apply 대안!!
+ rowSums(my_exam[,-1:-2], na.rm=T)  # *
+ rowMeans(my_exam[,-1:-2], na.rm=T) # **
+ 
+ colSums(my_exam[,-1:-2], na.rm=T)  # ***
+ colMeans(my_exam[,-1:-2], na.rm=T)  # ****
+ 
+ # 6-2. apply계열 함수 비교 
+ #+ applu, sapply, lapply
+ 
+ # 6-2-0. dataset
+ 
+ t_app <-matrix(c(1:9),3,3);t_app
+ 
+ # 사용자 정의 함수
+ mt <- function(x) {
+   return(x^2)
+   
+   
+ }
+ 
+ # 6-2-1. apply ----
+ 
+ t_app 
+ apply(t_app, 2, max) #2가 열 선택 , 1은 행을 선택 
+ apply(t_app, 2, mt)
+ apply(t_app, 1, mt)
+ class(apply(t_app, 1, mt)) #rt: 행렬
+ class(apply(t_app, 2, max)) #rt: 벡터
+ 
+ # NA 처리 
+ t_app[2,2:3] <- NA 
+ t_app
+ 
+ apply(t_app, 2, max, na.rm=T) # o
+ apply(t_app, 2, mt, na.rm=T) # x
+ 
+ 
+ # 6-2-2. sapply ----
+ 
+ t_app <- matrix(c(1:9),3,3);t_app
+ 
+ sapply(t_app, max)
+ sapply(t_app, mt)
+ 
+ 
+ # 6-2-3. lapply ----
+ t_app
+ 
+ lapply(t_app,max)
+ lapply(t_app,mt)
+ 
+ # 6-3. tapply ----
+ #+ tapply(벡터, index, 함수, 함수인자)
+ #+ 그룹별 연산
+ 
+ iris
+ names(iris)
+ unique(iris$Species)
+ 
+ tapply(iris$Sepal.Length, iris$Species, mean)
+ tapply(iris$Sepal.Length, iris$Species, sum)
 
 
 
