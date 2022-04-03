@@ -896,3 +896,111 @@ ggChoropleth(data = my_USArr,
 
 # 5. HTML 파일 저장하기
 
+
+# -----------------------4/1--------
+v.R
+# B. 인터랙티브 그래프(Interractive Graph)
+
+# pkg
+install.packages("plotly")
+library(plotly)
+"plotly" %in% install.packages()  # plotly설치되었는지 확인
+
+search()
+
+# dataset
+my_mpg <- mpg
+my_diamonds <- diamonds
+
+names(my_mpg)
+names(my_diamonds)
+
+# 1. my_mpg
+
+ggplot(data=my_mpg, aes(x=displ, y=hwy, col=drv))+
+  geom_point()
+
+mp<-ggplot(data=my_mpg, aes(x=displ, y=hwy, col=drv))+
+  geom_point()
+
+# 
+?ggplotly()#plotly:: 패키지 내장데이터 
+ggplotly(mp)
+
+# 2) my_diamonds
+
+names(my_diamonds)
+str(my_diamonds)
+levels(my_diamonds$cut)
+
+ggplot(data=my_diamonds, aes(x=cut, fill=clarity))+
+  geom_bar()
+
+dp0 <- ggplot(data=my_diamonds, aes(x=cut, fill=clarity))+
+  geom_bar(position = "dodge")
+
+ggplotly(dp0)
+
+# C. R마크다운(Markdown)
+
+# D.데이터 수집 기본(Data Scraping Basics)
+
+# 1-1. pkgs
+install.packages("htmltab")
+library(htmltab);search()
+
+# 1-2. landing page url
+
+url_01 <-  "https://en.wikipedia.org/wiki/List_of_most_common_surnames_in_South_America"
+
+url_01 <- "https://en.wikipedia.org/wiki/List_of_most_common_surnames_in_North_America"
+
+url_01
+
+#1-3. htmltab() 함수 활용
+
+?htmltab() #html패키지 탭에서 htmltab함수를 사용
+
+my_sur <-htmltab(doc =url_01,
+                 which = 9,
+                 Encoding="UTF=8", 
+                 stringAsFactors=F)
+my_sur
+
+head(my_sur)
+dim(my_sur)
+names(my_sur)
+my_sur[,1]  # 전체에서 1번째 컬럼을 읽겠다 
+str(my_sur) # 홈페이지에서 데이터를 긁어서 
+# 데이터 프레임을 받아내는 작업이 htmltab함수다.
+
+# 2-1. paks ----
+
+install.packages(c("rvest","readtext"))
+library(rvest)
+library(readtext)
+search()
+
+# 2-2. 랜딩페이지 url 
+
+url <- "https://en.wikipedia.org/wiki/List_of_most_common_surnames_in_North_America"
+
+url
+
+# 2-3. read_html(
+?read_html()
+
+read_html(url)
+
+ss <- read_html(url)
+ss
+
+# 2-4. 태그 활용 데이터 추출
+?html_node #rvest:;
+
+ss2 <-ss %>% 
+  html_nodes("p") %>% 
+  html_text()
+
+class(ss2) # vector로 가져왔다. 
+length(ss2)     

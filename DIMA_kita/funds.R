@@ -567,26 +567,26 @@ search()
 
 my_exam <- read.csv("ss_exam.csv")
 
-#5-1.filter() ----
+#5-1.dplyr::filter() ----
 
 #5-1-1. class == 6 인 경우
 names(my_exam)
-my_exam %>%filter(class == 6)
+my_exam %>%dplyr::filter(class == 6)
 my_exam[my_exam$class == 6,] # dplyr 사용을 안한다면? 내장 함수를 사용하는거지 머
 
 
 #5-1-2. class가 2와 3이 아닌 경우
-my_exam %>% filter(class != 2 & class !=3)
+my_exam %>% dplyr::filter(class != 2 & class !=3)
 
 #5-1-3. java가 80점 이상이면서 class가 3인 경우
-my_exam %>% filter(java >80 & class ==3)
+my_exam %>% dplyr::filter(java >80 & class ==3)
 
 #5-1-4. java 또는 eng가 80점 이상이면서 class가 5인 경우
-my_exam %>% filter((java | eng >80) & class == 5)
+my_exam %>% dplyr::filter((java | eng >80) & class == 5)
 
 #5-1-5. class가 1,3,5 인 경우
-my_exam %>% filter(class == 5 | class == 3 | class == 1)
-my_exam %>% filter(class %in% c(1,3,5))
+my_exam %>% dplyr::filter(class == 5 | class == 3 | class == 1)
+my_exam %>% dplyr::filter(class %in% c(1,3,5))
 #위에 두개 다 같은 방식 !
 
 #5-2. select() ----
@@ -599,9 +599,9 @@ my_exam %>% select(1:4) %>% head
 my_exam %>% select(-eng) %>% head
 
 # 5-2-3. class가 2인 학생들의 java와 database 성적확인
-my_exam %>% filter(class == 2) %>% select(class, java, database)
+my_exam %>% dplyr::filter(class == 2) %>% select(class, java, database)
 
-my_exam %>% select(class, java, database) %>% filter(class==2)
+my_exam %>% select(class, java, database) %>% dplyr::filter(class==2)
 
 #Q4 ----
 #4-1. [배기량별 고속도로 연비] displ이 5~6인 자동차의 hwy의 평균
@@ -610,7 +610,7 @@ View(my_mpg)
 my_mpg$displ
 head(my_mpg$displ)
 
-my_mpg %>% filter(5 < my_mpg$displ & my_mpg$displ < 6) ->t_mpg
+my_mpg %>% dplyr::filter(5 < my_mpg$displ & my_mpg$displ < 6) ->t_mpg
 View(t_mpg)
 
 mean(t_mpg$hwy)
@@ -619,7 +619,7 @@ mean(t_mpg$hwy)
 #4-1. 선생님 풀이 첫번째는 가독성이 좋지
 sort(unique(my_mpg$displ), decreasing = T)
 
-aaa <- my_mpg %>% select(1:3,9) %>% filter(between(displ, 5, 6))
+aaa <- my_mpg %>% select(1:3,9) %>% dplyr::filter(between(displ, 5, 6))
 
 View(aaa)
 
@@ -629,33 +629,33 @@ mean(aaa$hwy)
 #
 names(my_mpg %>% 
         select(1:3,9) %>% 
-        filter(between(displ,5,6)))
+        dplyr::filter(between(displ,5,6)))
 
 
 mean((my_mpg %>% 
         select(1:3,9) %>% 
-        filter(between(displ,5,6)))$hwy)
+        dplyr::filter(between(displ,5,6)))$hwy)
 
 #4-2. [제조사별 도시연비] 현대와 링컨 제조사의 도시연비 평균비용
-my_mpg %>% filter(my_mpg$manufacturer == "hyundai" |my_mpg$manufacturer ==  "lincoln") -> mean_q
+my_mpg %>% dplyr::filter(my_mpg$manufacturer == "hyundai" |my_mpg$manufacturer ==  "lincoln") -> mean_q
 
 mean(mean_q$cty)
 
 
 #선생님 답
 
-mean((my_mpg %>% select(1:3,8) %>% filter(manufacturer %in% c("hyundai","lincoln")))$cty)
+mean((my_mpg %>% select(1:3,8) %>% dplyr::filter(manufacturer %in% c("hyundai","lincoln")))$cty)
 
 
 mean((my_mpg %>% 
         select(1:3,8) %>% 
-        filter(manufacturer %in% c("hyundai","lincoln")))$cty)
+        dplyr::filter(manufacturer %in% c("hyundai","lincoln")))$cty)
 
 
 
 #4-3. [제조사별 고속도로 연비] jeep, lond rover, dodge 제조사
 my_mpg
-my_mpg %>% filter(my_mpg$manufacturer == c("land rover", "jeep", "dodge")) -> q3_mpg
+my_mpg %>% dplyr::filter(my_mpg$manufacturer == c("land rover", "jeep", "dodge")) -> q3_mpg
 View(q3_mpg)
 #내가 ==라고 해서 틀린건데 ==가 아니고 %in%이어야 하네, 뭐가 다르지 또는의 의미가 없어서면 ==는 뭐지
 
@@ -664,16 +664,16 @@ View(q3_mpg)
 mean(q3_mpg$hwy)
 
 .#선생닌ㅁ
-mean((my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")))$hwy)
+mean((my_mpg %>% select(1:3,9) %>% dplyr::filter(manufacturer %in% c("land rover", "jeep", "dodge")))$hwy)
 
-View(my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")))
-View(my_mpg %>%  filter(manufacturer %in% c("land rover", "jeep", "dodge")))
+View(my_mpg %>% select(1:3,9) %>% dplyr::filter(manufacturer %in% c("land rover", "jeep", "dodge")))
+View(my_mpg %>%  dplyr::filter(manufacturer %in% c("land rover", "jeep", "dodge")))
 
-my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")) %>% summarise(mean(hwy)) 
+my_mpg %>% select(1:3,9) %>% dplyr::filter(manufacturer %in% c("land rover", "jeep", "dodge")) %>% summarise(mean(hwy)) 
 ##
 mean((my_mpg %>% 
         select(1:3,9) %>% 
-        filter(manufacturer %in% c("jeep",
+        dplyr::filter(manufacturer %in% c("jeep",
                                    "land rover",
                                    "dodge")))$hwy)
 
@@ -681,7 +681,7 @@ mean((my_mpg %>%
 ##or group_by(), summarise() 사용
 my_mpg %>% 
 select(1:3, 9) %>% 
-  filter(manufacturer %in% c("jeep",
+  dplyr::filter(manufacturer %in% c("jeep",
                              "land rover",
                              "dodge")) %>% 
   summarise(mean(hwy))       # *
@@ -689,12 +689,12 @@ select(1:3, 9) %>%
                   
 #4-3-2 제조사별 hwy평균 (group_by, summarise 활용용)
 
-my_mpg %>% select(1:3,9) %>% filter(manufacturer %in% c("land rover", "jeep", "dodge")) %>% group_by(manufacturer) %>% summarise(mean(hwy)) 
+my_mpg %>% select(1:3,9) %>% dplyr::filter(manufacturer %in% c("land rover", "jeep", "dodge")) %>% group_by(manufacturer) %>% summarise(mean(hwy)) 
 
 ##
 my_mpg %>% 
   select(1:3, 9) %>% 
-  filter(manufacturer %in% c("jeep",
+  dplyr::filter(manufacturer %in% c("jeep",
                              "land rover",
                              "dodge")) %>% 
   group_by(manufacturer) %>%    # 제조사별로 grouping
@@ -715,14 +715,14 @@ names(q5_mpg)
 
 #pickup + suv
 mean((q5_mpg %>%
-  filter(class %in% c("picup", "suv")) %>%
+  dplyr::filter(class %in% c("picup", "suv")) %>%
   select(cty))$cty)
                     
 #distinct(manufacturer)
 
 # pickup,suv 그룹별로
 q5_mpg %>%
-  filter(class %in% c("picup", "suv")) %>%
+  dplyr::filter(class %in% c("picup", "suv")) %>%
   select(class) %>%
   summarise(mean(q5_mpg$cty))
 
@@ -750,13 +750,13 @@ my_exam %>%
 #1. 현대 차량 중에, hwy가 높은 순으로 출력
 my_mpg
 my_mpg %>% 
-  filter(manufacturer == "hyundai") %>%
+  dplyr::filter(manufacturer == "hyundai") %>%
   arrange(-hwy)
 
 #2. 현대 차량중에 hwy가 높은 순서에 해당하는 자동차 정보를 3위까지 출력하세요.
 
 my_mpg %>% 
-  filter(manufacturer == "hyundai") %>%
+  dplyr::filter(manufacturer == "hyundai") %>%
   arrange(desc(hwy)) %>% head(3)
 
 # 5-4. mutate() ** ----
@@ -939,7 +939,7 @@ View(my_exam)
 library(dplyr)
 
 my_exam %>%
-  filter(database >= 80 |java >= 80 | japan>= 80 | 
+  dplyr::filter(database >= 80 |java >= 80 | japan>= 80 | 
            eng >= 80) %>% 
   group_by(class) %>%
   summarise(m_java=mean(java))
@@ -948,7 +948,7 @@ my_exam %>%
 #3. class가 2,4,5인 경우의 과목별 평균을 출력하세요
 
 my_exam %>%
-  filter(class %in% c(2,4,5)) %>% 
+  dplyr::filter(class %in% c(2,4,5)) %>% 
   group_by(class) %>%
   summarise(m_db=mean(database)
             , m_java=mean(java)
@@ -984,7 +984,7 @@ my_mpg %>%
 #4. suv 차종을 가장 많이 생산하는 제조사 3곳을 출력하세요
 
 my_mpg %>% 
-  dplyr::filter(class == "suv") %>% 
+  dplyr::dplyr::filter(class == "suv") %>% 
   group_by(manufacturer) %>% 
   summarise(cn=n()) %>% 
   arrange(-cn) %>% 
@@ -994,7 +994,7 @@ my_mpg %>%
 
 
 my_mpg %>% 
-  dplyr::filter(class == "suv") %>% 
+  dplyr::dplyr::filter(class == "suv") %>% 
   group_by(manufacturer, model) %>% 
   summarise(m_cty=mean(cty)) %>% 
   arrange(-m_cty) %>% 
@@ -1141,7 +1141,7 @@ my_mid
 #선생님
 my_mid %>% 
   select(state, county, nonage_r) %>% 
-  dplyr::filter(between(nonage_r, 40,43)) %>% 
+  dplyr::dplyr::filter(between(nonage_r, 40,43)) %>% 
   arrange(-nonage_r)
   
 
@@ -1461,46 +1461,54 @@ library(reshape2)
  # 문자 a를 가지고 있는 
  
  my_mpg %>%
-   filter(manufacturer %like% 'a') %>%
+   dplyr::filter(manufacturer %like% 'a') %>%
    distinct(manufacturer)     # data.table # 중복값 제거
  
  View(my_mpg)
  
  my_mpg %>%
-   filter(str_detect(manufacturer,'a')) %>%
+   dplyr::filter(str_detect(manufacturer,'a')) %>%
    distinct(manufacturer)     # stringr::str_detect 
  
  
  # 문자 a로 시작..^a a로 시작한다. 
  
  my_mpg %>% 
-   filter(manufacturer %like% '^a') %>% 
+   dplyr::filter(manufacturer %like% '^a') %>% 
    distinct(manufacturer)  # data.table
  
  my_mpg %>% 
-   filter(str_detect(manufacturer, '^a')) %>% 
+   dplyr::filter(str_detect(manufacturer, '^a')) %>% 
    distinct(manufacturer)  # stringr::str_detect
  
  # 문자 c로 끝나는.... c$ c로 시작하다. 
  
  my_mpg %>% 
-   filter(manufacturer %like% 'c$') %>% 
+   dplyr::filter(manufacturer %like% 'c$') %>% 
    distinct(manufacturer)  # data.table
  
  my_mpg %>% 
-   filter(str_detect(manufacturer, 'c$')) %>% 
+   dplyr::filter(str_detect(manufacturer, 'c$')) %>% 
    distinct(manufacturer)  # stringr::str_detect
  
  # 문자 c 또는 i 또는 s가 들어가 있는 문자 [ ]
  my_mpg %>% 
-   filter(manufacturer %like% '[cis]') %>% 
+   dplyr::filter(manufacturer %like% '[cis]') %>% 
    distinct(manufacturer)  # data.table
  
  my_mpg %>% 
-   filter(str_detect(manufacturer, '[cis]')) %>% 
+   dplyr::filter(manufacturer %like% '[c,i,s]') %>% 
+   distinct(manufacturer)  # data.table
+ 
+ my_mpg %>% 
+   dplyr::filter(manufacturer %like% '[c | i | s]') %>% 
+   distinct(manufacturer)  # data.table
+ 
+ my_mpg %>% 
+   dplyr::filter(str_detect(manufacturer, '[cis]')) %>% 
    distinct(manufacturer)  # stringr::str_detect
  
- # 6-1-2. ----
+ 6-1-2. ----
  
  installed.packages()
  
@@ -1528,7 +1536,7 @@ library(reshape2)
  # %in% : 
  
  dima_check <-function(x) {
-   xx <- x%in% installed.packages()
+   xx <- x %in% installed.packages()
    return(xx)
  }
  
@@ -1555,12 +1563,21 @@ library(reshape2)
  
  a2 <- matrix(c("dima_구연","dima_동준",
                 "dima_기도","dima_기범"),2,2);a2
- a2 
+ a2
  
  # 6-1-3. 다른 함수 활용  ----
  
  
  # 사용자 함수 구성
+ 
+ # 사용자 함수 구성
+ d_sub <- function(x){
+   return(str_sub(x,6,7)) #stringr 함수  
+   #str_sub(string,시작,끝)
+   #string: 잘라서 가져올 문자열 , 시작: 가져오기 시작할 부분, 끝: 가져오기를 끝낼 문자열 부분
+ }
+ 
+ 
  install.packages("stringr")
  search()
  
@@ -1623,13 +1640,11 @@ library(reshape2)
  # 사용자 정의 함수
  mt <- function(x) {
    return(x^2)
-   
-   
  }
  
  # 6-2-1. apply ----
  
- t_app 
+ t_app
  apply(t_app, 2, max) #2가 열 선택 , 1은 행을 선택 
  apply(t_app, 2, mt)
  apply(t_app, 1, mt)
@@ -1647,7 +1662,8 @@ library(reshape2)
  # 6-2-2. sapply ----
  
  t_app <- matrix(c(1:9),3,3);t_app
- 
+
+ sapply(t_app)
  sapply(t_app, max)
  sapply(t_app, mt)
  

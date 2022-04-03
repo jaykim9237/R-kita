@@ -108,6 +108,8 @@ r5 = rep(1:5, each=2, times=3);r5
 
 length(rep(1:5, each=2, times=3, length.out=100))
 
+seq(10,100, by=10) #10씩
+
 rep(1:5, each=3) #each반복횟수 
 rep(1:5, each=2 , length.out=100)
 rep(1:5, each=2 , length.out=100)
