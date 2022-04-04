@@ -92,3 +92,7 @@ daejeon_map <- get_googlemap('대전', maptype = 'roadmap', zoom = 11, markers =
 
 ggmap(daejeon_map) +
   geom_text(data = daejeon_data, aes(x = lon, y = lat), size = 3, label = daejeon_data$name)
+
+#7-4
+
+
