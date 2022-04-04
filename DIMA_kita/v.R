@@ -967,6 +967,12 @@ my_sur <-htmltab(doc =url_01,
                  stringAsFactors=F)
 my_sur
 
+my_sur <-htmltab(doc =url_01,
+                 which = 2,
+                 Encoding="UTF=8", 
+                 stringAsFactors=F)
+my_sur
+
 head(my_sur)
 dim(my_sur)
 names(my_sur)
@@ -983,24 +989,112 @@ search()
 
 # 2-2. 랜딩페이지 url 
 
+url = "https://en.wikipedia.org/wiki/List_of_most_common_surnames_in_North_America"
+
 url <- "https://en.wikipedia.org/wiki/List_of_most_common_surnames_in_North_America"
 
-url
-
-# 2-3. read_html(
+# 2-3. read_html() 크롤링이 된거야 
 ?read_html()
 
-read_html(url)
+read_html(url) #웹사이트를 XML로 가지고 온 것
 
 ss <- read_html(url)
 ss
 
-# 2-4. 태그 활용 데이터 추출
+class(ss)
+names(ss)
+ss$node
+ss$doc
+
+# 2-4. 태그 활용 데이터 추출 찾는거가 스크랩핑 
 ?html_node #rvest:;
 
 ss2 <-ss %>% 
-  html_nodes("p") %>% 
-  html_text()
+  html_nodes("p") %>%  #XML 객체에서 관련 노드 추출
+  html_text()           # 관련 태그에서 데이터 추출
+
+ss %>% 
+  html_node("p") #XML 객체를 가지고 온 것이야 p 태그를 가지고 온 것 
 
 class(ss2) # vector로 가져왔다. 
 length(ss2)     
+
+#q11
+
+weather_url = "https://forecast.weather.gov/MapClick.php?lat=37.7771&lon=-122.4196#.Xl0j6BNKhTY"
+weather_url <- "https://forecast.weather.gov/MapClick.php?lat=37.7771&lon=-122.4196#.Xl0j6BNKhTY"
+
+wea <- read_html(weather_url)
+class(wea)
+names(wea)
+
+wea_short <- wea %>% 
+  html_nodes("p") %>% 
+  html_text("short_desc")
+
+wea_short <- wea %>% 
+  html_nodes(".short_desc") %>% 
+  html_text()
+
+install.packages("stringr")
+library(stringr)
+
+View(wea_short)
+matrix()
+
+#선생님
+# 0. pkgs
+library(rvest);search()
+library(dplyr);search()
+library(stringr)   # str_sub()      # 문자 자르기
+library(readr)     # parse_number() #숫자만
+library(data.table);search() # %like% 연산자 
+
+
+# 1. Crawling
+forecast <- read_html("https://forecast.weather.gov/MapClick.php?lat=37.7771&lon=-122.4196#.Xl0j6BNKhTY");forecast
+
+# 2. Scraping 
+
+f1 <- forecast %>% 
+  html_nodes(".period-name") %>% 
+  html_text();f1
+
+f2 <- forecast %>% 
+  html_nodes(".temp") %>% 
+  html_text();f2
+
+f3 <- forecast %>% 
+  html_nodes(".short-desc") %>% 
+  html_text();f3
+
+# 3. data pre-processing
+
+t_weather <- data.frame(f1, f2, f3)
+class(t_weather)
+head(t_weather)
+
+# rename    dplyr::
+
+t_weather <- rename(t_weather, day_week=f1,
+                    temp_F=f2,
+                    detail=f3)
+
+dim(t_weather)
+head(t_weather)
+
+# 특정문자(문자, 숫자) 변경
+
+st <- str_sub(t_weather$temp_F, 1,1);st
+pn <- parse_number(t_weather$temp_F);pn
+
+t_weather$temp_F <- paste(st,pn)
+head(t_weather)
+
+# 4. non Clear 날씨 정보
+names(t_weather)
+head(t_weather,2)
+
+t_weather %>% 
+  filter(!(detail %like% 'Clear'))
+
