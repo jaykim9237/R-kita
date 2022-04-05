@@ -1098,3 +1098,149 @@ head(t_weather,2)
 t_weather %>% 
   filter(!(detail %like% 'Clear'))
 
+
+#Q12
+#시계열 데이터에 대한 인터렉티브 그래프
+
+install.packages("dygraphs")
+library(dygraphs)
+library(xts)
+library(ggplot2)
+
+eco <- ggplot2::economics
+eco
+head(eco)
+
+#1. 실업률 시계열 dataset
+
+?xts
+xts(eco$unemploy, order.by = eco$date)
+my_unemp_d <- xts(eco$unemploy, order.by = eco$date)
+my_une_1000 <- xts(eco$unemploy/1000, order.by = eco$date)
+
+
+class(my_unemp_d)
+rownames(my_unemp_d)
+dim(my_unemp_d)
+head(my_unemp_d)
+names(my_unemp_d)
+
+#2. 저축률 시계열
+my_ps_d <- xts(eco$psavert, order.by = eco$date)
+my_ps_d
+
+#3. 실업률 + 저축률 시계열
+
+#name 없음
+names(my_une_1000)
+names(my_ps_d)
+
+#단순컬럼결합, cbind()
+
+cbind(my_une_1000, my_ps_d)
+names(cbind(my_une_1000, my_ps_D))
+
+#단순컬럼결합
+my_eco <- cbind(my_une_1000, my_ps_d)
+dim(my_eco)
+head(my_eco)
+
+#4. 시계열 인터렉티브 그래프
+#+ dygraph(x)는 벡터 또는 객체
+#+ dyRangeSelector() 날짜 범위 하단에
+
+dygraph(my_une_1000)
+dygraph(my_ps_d)
+dygraph(my_eco)
+
+dygraph(my_eco) %>% dyRangeSelector()
+
+
+# Z검정 - 검정통계량 구하기
+350/100   # 3.5
+280/100   # 2.8   # 3.5 + 2.8 = 6.3
+a <- sqrt(6.3);a
+
+250-246   # 4
+
+# 검정통계량 =
+4/a       # 1.593638
+
+z = 250-246/sqrt((350/100)+(280/100))
+z = (mean_d1 - mean_d2) / sqrt((var_d1/n_d1) + (var_d2/n_d2))
+
+#표준정규분포 (mean=0, sd=1)
+
+#1) data 11개
+par("mar")
+par(mar=c(1,1,1,1))
+x<- (-5:5)
+y <- dnorm(x,0,1)
+plot(x,y,type="l")
+
+# 3. Test
+# rm(list=ls())
+
+z_ds <- read.csv("z_test.csv")
+str(z_ds)
+head(z_ds)
+names(z_ds)
+
+unique((z_ds$group))
+
+#3-1.data pre-processing
+#data grouping
+
+zg_A <- z_ds[z_ds$group == 'A', 2:3]
+zg_B <- z_ds[z_ds$group == 'B', 2:3]
+zg_A
+zg_B
+
+#평균
+mean(zg_A$height)
+mean(zg_B$height)
+
+#분산
+var(zg_A$height)
+var(zg_B$height)
+
+#표준편차
+sd(zg_A$height)
+sd(zg_B$height)
+
+length(zg_A$height)
+length(zg_B$height)
+
+#귀무: A와 B그룹의 평균의 차이가 없음 -> 기각
+#대립: B그룹이 A그룹보다 평균키차이가 큼(차이가 있음) -> 채택
+
+n_d1=length(zg_A$height)
+n_d2=length(zg_B$height)
+
+mean_d1=mean(zg_A$height)
+mean_d2=mean(zg_B$height)
+
+var_d1=var(zg_A$height)
+var_d2=var(zg_B$height)
+
+z = (mean_d1 - mean_d2) / sqrt((var_d1/n_d1) + (var_d2/n_d2))
+z_abs=abs(z)
+z_abs
+
+my_pv = 1-pnorm(z_abs)
+my_pv
+
+#********************
+#t검정
+
+t.test(zg_A$height, zg_B$height,
+       var.equal = T,
+       alternative = "less",
+       conf.level = T)
+
+my_p_value <- function(
+    #확율구하기
+    z = (mean_d1 - mean_d2) / sqrt((var_d1/n_d1) + (var_d2/n_d2))
+    abs(z)
+    ...?
+  )

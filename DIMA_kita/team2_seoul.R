@@ -1,6 +1,21 @@
-#참고사이트 ->https://givitallugot.github.io/articles/2020-03/R-visualization-1-seoulmap
+#참고사이트 -> https://givitallugot.github.io/articles/2020-03/R-visualization-1-seoulmap
+
+install.packages("maptools")
+install.packages("rgdal")
+install.packages("ggmap")
+install.packages("ggplot2")
+install.packages("raster")
+install.packages("rgeos")
 
 library(readxl)
+library(maptools)
+library(rgdal)
+library(ggmap)
+library(ggplot2)
+library(raster)
+library(rgeos)
+library(dplyr)
+
 
 #서울시 고유아이디 번호 가지고 오기
 seoul_id <- read_csv("team2/seoul_id.csv",locale=locale('ko',encoding='euc-kr'))
@@ -21,38 +36,24 @@ head(seoul_used)
 #캐릭터를 정수로 변경해주기
 seoul_used$전용주거지역 <- as.numeric(seoul_used$전용주거지역)
 
-library(dplyr)
-
 #지역의 고유번호(id)가 나오게 조인
 seoul <- full_join(seoul_id, seoul_used)
 seoul
 
-install.packages("maptools")
-install.packages("rgdal")
-install.packages("ggmap")
-install.packages("ggplot2")
-install.packages("raster")
-install.packages("rgeos")
-
-library(maptools)
-library(rgdal)
-library(ggmap)
-library(ggplot2)
-library(raster)
-library(rgeos)
 
 #서울 지도 가지고 오기
 seoul_map <- readOGR("team2/SIG_201703/TL_SCCO_SIG.shp")
 class(seoul_map)
 str(seoul_map)
-View(seoul_map)
+head(seoul_map)
 
 #지도확인하기 -우리나라 지도
-plot(seoul_map)
 
-seoul_map$SIG_CD <- as.numeric(seoul_map$SIG_CD)
+temp_map <- spTransform(seoul_map, CRSobj = CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+temp_map
+#seoul_map$SIG_CD <- as.numeric(seoul_map$SIG_CD)
 
-map <- fortify(seoul_map, region = 'SIG_CD') 
+map <- fortify(temp_map, region = 'SIG_CD') 
 head(map)
 str(map)
 View(map)
@@ -61,14 +62,31 @@ View(map)
 map$id <- as.numeric(map$id)
 head(map)
 
-seoul_map <- map %>% dplyr::filter(map$id <=180)
+seoul_map <- map %>% dplyr::filter(map$id <=11740)
 P_merge <- merge(seoul_map, seoul, by='id')
+seoul_map
+P_merge
+View(P_merge)
 
 #서울시 지도 ㅠㅠ 진짜 감동적 ㅠㅠㅠ
 ggplot() + geom_polygon(data = P_merge, aes(x=long, y=lat, group=group), fill = 'white', color='black')
 
 #데이터 확인
 head(seoul)
-home_total <- ggplot() + geom_polygon(data = P_merge, aes(x=long, y=lat, group=group, fill = "주거소계"))
+home_total <- ggplot() + geom_polygon(data = P_merge, aes(x=long, y=lat, group=group, fill = 일반주거지역))
 home_total
+biz_total <- ggplot() + geom_polygon(data = P_merge, aes(x=long, y=lat, group=group, fill = 상업소계))
+biz_total
+
+?geom_polygon
+
+
 home_total + scale_fill_gradient(low = "#ffe5e5", high = "#ff3232", space = "Lab", guide = "colourbar")
+str(P_merge)
+
+#범주화 데이터를 숫자형으로
+seoul$주거소계_lev<- levels(seoul$주거소계)
+seoul$주거소계<- as.numeric(seoul$주거소계)
+seoul
+class(seoul$주거소계)
+#https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=nife0719&logNo=220989543252
