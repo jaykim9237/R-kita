@@ -1238,9 +1238,3 @@ t.test(zg_A$height, zg_B$height,
        alternative = "less",
        conf.level = T)
 
-my_p_value <- function(
-    #확율구하기
-    z = (mean_d1 - mean_d2) / sqrt((var_d1/n_d1) + (var_d2/n_d2))
-    abs(z)
-    ...?
-  )
